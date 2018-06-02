@@ -21,6 +21,6 @@ add_executable(Projekt main.cpp
         Engine/Window/Window.cpp
 
         Game/Game.h
-        Game/Game.cpp )
+        Game/Game.cpp Engine/Graphics/Vertex.h Engine/Vulkan/Instance.h)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

@@ -33,7 +33,7 @@ public:
 
     bool is_open() const;
 
-    vk::SurfaceKHR create_surface( const vk::Instance& instance_handle ) const;
+    VkSurfaceKHR create_surface( const VkInstance& instance_handle ) const;
 
     std::vector<const char*> get_required_extensions() const;
 
