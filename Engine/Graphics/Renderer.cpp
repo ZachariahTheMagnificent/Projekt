@@ -265,7 +265,7 @@ Renderer::create_debug_callback( ) const
 VkSurfaceKHR
 Renderer::create_surface() const
 {
-    return vk::SurfaceKHR( window_.create_surface( instance_handle_ ) );
+    return window_.create_surface( instance_handle_ );
 }
 VkPhysicalDevice
 Renderer::pick_gpu( )
@@ -308,7 +308,8 @@ Renderer::create_device( ) const
     float queue_priority = 1.0f;
     for( const auto& queue_family : unique_queue_families )
     {
-        vk::DeviceQueueCreateInfo create_info = {};
+        VkDeviceQueueCreateInfo create_info = {};
+        create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         create_info.queueFamilyIndex = queue_family;
         create_info.queueCount = 1;
         create_info.pQueuePriorities = &queue_priority;
