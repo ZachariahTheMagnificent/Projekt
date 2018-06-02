@@ -5,7 +5,7 @@
 #ifndef PROJEKT_RENDERER_H
 #define PROJEKT_RENDERER_H
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 #include "Vertex.h"
 #include "../Window/Window.h"

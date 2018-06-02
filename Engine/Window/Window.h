@@ -7,8 +7,9 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 #include <glfw/glfw3.h>
 
 #ifdef NDEBUG

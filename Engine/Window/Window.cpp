@@ -2,6 +2,8 @@
  *
  */
 
+#include <cassert>
+
 #include "Window.h"
 
 #include "../Utils/Exception/GlfwException.h"

@@ -2,6 +2,7 @@
  *
  */
 
+#include <cstring>
 #include <iostream>
 #include <set>
 
@@ -1000,7 +1001,11 @@ Renderer::find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properti
 bool
 Renderer::check_validation_layer_support( ) const
 {
-    auto available_layers = vk::enumerateInstanceLayerProperties();
+    uint32_t layer_count;
+    vkEnumerateInstanceLayerProperties( &layer_count, nullptr );
+
+    std::vector<VkLayerProperties> available_layers( layer_count );
+    vkEnumerateInstanceLayerProperties( &layer_count, available_layers.data() );
 
     for( const char* layer_name : validation_layers )
     {
