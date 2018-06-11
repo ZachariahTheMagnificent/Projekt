@@ -12,6 +12,7 @@ add_executable(Projekt main.cpp
 
         Engine/Graphics/Renderer.h
         Engine/Graphics/Renderer.cpp
+        Engine/Graphics/Vertex.h
         Engine/Utils/Exception/Exception.h
         Engine/Utils/Exception/GlfwException.h
         Engine/Utils/Exception/VulkanException.h
@@ -21,6 +22,7 @@ add_executable(Projekt main.cpp
         Engine/Window/Window.cpp
 
         Game/Game.h
-        Game/Game.cpp )
+        Game/Game.cpp
+        )
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

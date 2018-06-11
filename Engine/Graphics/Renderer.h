@@ -5,8 +5,9 @@
 #ifndef PROJEKT_RENDERER_H
 #define PROJEKT_RENDERER_H
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
+#include "Vertex.h"
 #include "../Window/Window.h"
 
 class Renderer
@@ -25,10 +26,10 @@ private:
 
     struct SwapchainSupportDetails
     {
-        vk::SurfaceCapabilitiesKHR capabilities;
+        VkSurfaceCapabilitiesKHR capabilities;
 
-        std::vector<vk::SurfaceFormatKHR> formats;
-        std::vector<vk::PresentModeKHR> present_modes;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> present_modes;
     };
 
 public:
@@ -38,39 +39,52 @@ public:
     void draw_frame();
 
     void recreate_swapchain();
+    void cleanup_swapchain();
 
 private:
-    vk::Instance                    create_instance() const;
-    vk::DebugReportCallbackEXT      create_debug_callback() const;
-    vk::SurfaceKHR                  create_surface() const;
-    vk::PhysicalDevice              pick_gpu();
-    vk::Device                      create_device() const;
-    vk::Queue                       get_queue( int32_t family_index, uint32_t queue_index ) const;
-    vk::CommandPool                 create_command_pool() const;
-    vk::Semaphore                   create_semaphore() const;
+    VkInstance                      create_instance() const;
+    VkDebugReportCallbackEXT        create_debug_callback() const;
+    VkSurfaceKHR                    create_surface() const;
+    VkPhysicalDevice                pick_gpu();
+    VkDevice                        create_device() const;
+    VkQueue                         get_queue( int32_t family_index, uint32_t queue_index ) const;
+    VkCommandPool                   create_command_pool() const;
+    VkSemaphore                     create_semaphore() const;
+    VkFence                         create_fence() const;
 
-    vk::SwapchainKHR                create_swapchain();
-    vk::SwapchainKHR                create_swapchain( vk::SwapchainKHR& old_swapchain );
-    std::vector<vk::ImageView>      create_image_views();
-    std::vector<vk::Framebuffer>    create_framebuffers();
-    std::vector<vk::CommandBuffer>  create_command_buffers();
+    std::vector<VkSemaphore>        create_semaphores() const;
+    std::vector<VkFence>            create_fences() const;
 
-    vk::RenderPass                  create_render_pass();
+    VkSwapchainKHR                  create_swapchain();
+    VkSwapchainKHR                  create_swapchain( VkSwapchainKHR& old_swapchain );
+    std::vector<VkImageView>        create_image_views();
+    std::vector<VkFramebuffer>      create_framebuffers();
+    std::vector<VkCommandBuffer>    create_command_buffers();
+
+    VkRenderPass                    create_render_pass();
     void                            create_pso();
-    vk::ShaderModule                create_shader_module( const std::string& shader_code );
+    VkShaderModule                  create_shader_module( const std::string& shader_code );
 
     void record_commands();
 
+    void create_buffer( VkDeviceSize& size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                        VkBuffer& buffer, VkDeviceMemory& buffer_memory );
+    void copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, VkDeviceSize& size );
+    void create_vertex_buffer();
+    void create_index_buffer();
+    uint32_t find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties );
+
+
     bool check_validation_layer_support() const;
-    bool check_device_extension_support( vk::PhysicalDevice& gpu_handle ) const;
-    bool is_device_suitable( vk::PhysicalDevice &gpu_handle );
+    bool check_device_extension_support( VkPhysicalDevice& gpu_handle ) const;
+    bool is_device_suitable( VkPhysicalDevice &gpu_handle );
 
-    vk::SurfaceFormatKHR choose_surface_format( const std::vector<vk::SurfaceFormatKHR>& available_formats ) const;
-    vk::PresentModeKHR  choose_present_mode( const std::vector<vk::PresentModeKHR>& available_present_modes ) const;
-    vk::Extent2D choose_extent( vk::SurfaceCapabilitiesKHR& capabilities ) const;
+    VkSurfaceFormatKHR choose_surface_format( const std::vector<VkSurfaceFormatKHR>& available_formats ) const;
+    VkPresentModeKHR  choose_present_mode( const std::vector<VkPresentModeKHR>& available_present_modes ) const;
+    VkExtent2D choose_extent( VkSurfaceCapabilitiesKHR& capabilities ) const;
 
-    QueueFamilyIndices find_queue_family_indices( vk::PhysicalDevice &gpu_handle ) const;
-    SwapchainSupportDetails query_swapchain_support( vk::PhysicalDevice &gpu_handle ) const;
+    QueueFamilyIndices find_queue_family_indices( VkPhysicalDevice &gpu_handle ) const;
+    SwapchainSupportDetails query_swapchain_support( VkPhysicalDevice &gpu_handle ) const;
 
 private:
     const std::vector<const char*> validation_layers = {
@@ -83,33 +97,60 @@ private:
 private:
     Window& window_;
 
-    vk::Instance                    instance_handle_;
-    vk::DebugReportCallbackEXT      debug_callback_handle_;
-    vk::SurfaceKHR                  surface_handle_;
-    vk::PhysicalDevice              gpu_handle_;
-    vk::Device                      device_handle_;
-    vk::Queue                       graphics_queue_handle_;
-    vk::Queue                       present_queue_handle_;
-    vk::CommandPool                 command_pool_handle_;
-    vk::Semaphore                   image_available_semaphore_handle_;
-    vk::Semaphore                   render_finished_semaphore_handle_;
+    VkInstance                      instance_handle_                    = VK_NULL_HANDLE;
+    VkDebugReportCallbackEXT        debug_callback_handle_              = VK_NULL_HANDLE;
+    VkSurfaceKHR                    surface_handle_                     = VK_NULL_HANDLE;
+    VkPhysicalDevice                gpu_handle_                         = VK_NULL_HANDLE;
+    VkDevice                        device_handle_                      = VK_NULL_HANDLE;
+    VkQueue                         graphics_queue_handle_              = VK_NULL_HANDLE;
+    VkQueue                         present_queue_handle_               = VK_NULL_HANDLE;
+    VkCommandPool                   command_pool_handle_                = VK_NULL_HANDLE;
 
-    vk::SwapchainKHR                swapchain_handle_;
-    vk::Format                      swapchain_format_handle_;
-    vk::Extent2D                    swapchain_extent_handle_;
-    std::vector<vk::Image>          swapchain_images_;
-    std::vector<vk::ImageView>      swapchain_image_view_handles_;
-    std::vector<vk::Framebuffer>    swapchain_framebuffer_handles_;
+    std::vector<VkSemaphore>        image_available_semaphore_handles_;
+    std::vector<VkSemaphore>        render_finished_semaphore_handles_;
+    std::vector<VkFence>            fences_;
 
-    std::vector<vk::CommandBuffer>  command_buffer_handles;
+    VkSwapchainKHR                  swapchain_handle_                   = VK_NULL_HANDLE;
+    VkFormat                        swapchain_format_handle_;
+    VkExtent2D                      swapchain_extent_handle_;
+    std::vector<VkImage>            swapchain_images_;
+    std::vector<VkImageView>        swapchain_image_view_handles_;
+    std::vector<VkFramebuffer >     swapchain_framebuffer_handles_;
 
-    vk::RenderPass                  render_pass_handle_;
+    std::vector<VkCommandBuffer>    command_buffer_handles_;
 
-    vk::Pipeline                    pso_handle_;
-    vk::PipelineLayout              pso_layout_handle_;
+    VkRenderPass                    render_pass_handle_                 = VK_NULL_HANDLE;
 
+    VkPipeline                      pso_handle_                         = VK_NULL_HANDLE;
+    VkPipelineLayout                pso_layout_handle_                  = VK_NULL_HANDLE;
 
-    QueueFamilyIndices indices_;
+    VkBuffer                        vertex_buffer_handle_               = VK_NULL_HANDLE;
+    VkDeviceMemory                  vertex_buffer_memory_handle_        = VK_NULL_HANDLE;
+
+    VkBuffer                        index_buffer_handle_                = VK_NULL_HANDLE;
+    VkDeviceMemory                  index_buffer_memory_handle_         = VK_NULL_HANDLE;
+
+    QueueFamilyIndices queue_family_indices_;
+
+    size_t current_frame = 0;
+
+    const std::vector<Vertex> vertices = {
+            { { -0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+            { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+            { {  0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+            { {  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+    };
+
+    const std::vector<std::uint16_t> indices_ = {
+            0, 1, 3, 1, 2, 3
+    };
+
+    struct UniformBufferObject
+    {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
 };
 
 #endif //PROJEKT_RENDERER_H

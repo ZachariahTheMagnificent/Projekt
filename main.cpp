@@ -68,7 +68,7 @@ int main( )
         {
             std::cerr << error_warning << std::endl;
 
-            std::string error_message = "Major fuck up caught at game creation and runtime.\n\nUnhandled unknow exception";
+            std::string error_message = "Major fuck up caught at game creation and runtime.\n\nUnhandled unknown exception";
 
             write_to_file( error_log_file, error_message );
         }
@@ -119,7 +119,7 @@ int main( )
     {
         std::cerr << error_warning << std::endl;
 
-        std::string error_message = "Major fuck up caught at window creation.\n\nUnhandled unknow exception";
+        std::string error_message = "Major fuck up caught at window creation.\n\nUnhandled unknown exception";
 
         write_to_file( error_log_file, error_message );
     }

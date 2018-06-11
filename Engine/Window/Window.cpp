@@ -2,6 +2,8 @@
  *
  */
 
+#include <cassert>
+
 #include "Window.h"
 
 #include "../Utils/Exception/GlfwException.h"
@@ -106,12 +108,12 @@ Window::set_up( )
     glfwSetWindowPos( p_window_, x_pos_, y_pos_ );
 }
 
-vk::SurfaceKHR Window::create_surface( const vk::Instance &instance_handle ) const
+VkSurfaceKHR Window::create_surface( const VkInstance &instance_handle ) const
 {
     VkSurfaceKHR surface;
 
-	if( glfwCreateWindowSurface( VkInstance { instance_handle }, p_window_, nullptr, &surface ) != VK_SUCCESS )
+	if( glfwCreateWindowSurface( instance_handle, p_window_, nullptr, &surface ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create surface", __FILE__, __LINE__ };
 
-    return vk::SurfaceKHR( surface );
+    return surface;
 }
