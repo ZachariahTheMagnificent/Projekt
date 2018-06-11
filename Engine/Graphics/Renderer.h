@@ -9,29 +9,13 @@
 
 #include "Vertex.h"
 #include "../Window/Window.h"
+#include "../Vulkan/Instance.h"
+#include "../Vulkan/DebugReport.h"
+#include "../Vulkan/Surface.h"
+#include "../Vulkan/PhysicalDevice.h"
 
 class Renderer
 {
-private:
-    struct QueueFamilyIndices
-    {
-        int32_t graphics_family = -1;
-        int32_t present_family = -1;
-
-        bool is_complete()
-        {
-            return graphics_family >= 0 && present_family >= 0;
-        }
-    };
-
-    struct SwapchainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR capabilities;
-
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> present_modes;
-    };
-
 public:
     explicit Renderer( Window& window );
     ~Renderer();
@@ -42,20 +26,16 @@ public:
     void cleanup_swapchain();
 
 private:
-    VkInstance                      create_instance() const;
-    VkDebugReportCallbackEXT        create_debug_callback() const;
-    VkSurfaceKHR                    create_surface() const;
-    VkPhysicalDevice                pick_gpu();
-    VkDevice                        create_device() const;
-    VkQueue                         get_queue( int32_t family_index, uint32_t queue_index ) const;
-    VkCommandPool                   create_command_pool() const;
-    VkSemaphore                     create_semaphore() const;
-    VkFence                         create_fence() const;
+    VkDevice                        create_device( );
+    VkQueue                         get_queue( int32_t family_index, uint32_t queue_index );
+    VkCommandPool                   create_command_pool( );
+    VkSemaphore                     create_semaphore();
+    VkFence                         create_fence();
 
-    std::vector<VkSemaphore>        create_semaphores() const;
-    std::vector<VkFence>            create_fences() const;
+    std::vector<VkSemaphore>        create_semaphores();
+    std::vector<VkFence>            create_fences();
 
-    VkSwapchainKHR                  create_swapchain();
+    VkSwapchainKHR                  create_swapchain( );
     VkSwapchainKHR                  create_swapchain( VkSwapchainKHR& old_swapchain );
     std::vector<VkImageView>        create_image_views();
     std::vector<VkFramebuffer>      create_framebuffers();
@@ -74,17 +54,9 @@ private:
     void create_index_buffer();
     uint32_t find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties );
 
-
-    bool check_validation_layer_support() const;
-    bool check_device_extension_support( VkPhysicalDevice& gpu_handle ) const;
-    bool is_device_suitable( VkPhysicalDevice &gpu_handle );
-
     VkSurfaceFormatKHR choose_surface_format( const std::vector<VkSurfaceFormatKHR>& available_formats ) const;
     VkPresentModeKHR  choose_present_mode( const std::vector<VkPresentModeKHR>& available_present_modes ) const;
     VkExtent2D choose_extent( VkSurfaceCapabilitiesKHR& capabilities ) const;
-
-    QueueFamilyIndices find_queue_family_indices( VkPhysicalDevice &gpu_handle ) const;
-    SwapchainSupportDetails query_swapchain_support( VkPhysicalDevice &gpu_handle ) const;
 
 private:
     const std::vector<const char*> validation_layers = {
@@ -97,10 +69,11 @@ private:
 private:
     Window& window_;
 
-    VkInstance                      instance_handle_                    = VK_NULL_HANDLE;
-    VkDebugReportCallbackEXT        debug_callback_handle_              = VK_NULL_HANDLE;
-    VkSurfaceKHR                    surface_handle_                     = VK_NULL_HANDLE;
-    VkPhysicalDevice                gpu_handle_                         = VK_NULL_HANDLE;
+    Vk::Instance instance_;
+    Vk::DebugReport debug_report_;
+    Vk::Surface surface_;
+    Vk::PhysicalDevice gpu_;
+
     VkDevice                        device_handle_                      = VK_NULL_HANDLE;
     VkQueue                         graphics_queue_handle_              = VK_NULL_HANDLE;
     VkQueue                         present_queue_handle_               = VK_NULL_HANDLE;
@@ -130,7 +103,7 @@ private:
     VkBuffer                        index_buffer_handle_                = VK_NULL_HANDLE;
     VkDeviceMemory                  index_buffer_memory_handle_         = VK_NULL_HANDLE;
 
-    QueueFamilyIndices queue_family_indices_;
+    Vk::Helpers::QueueFamilyIndices queue_family_indices_;
 
     size_t current_frame = 0;
 

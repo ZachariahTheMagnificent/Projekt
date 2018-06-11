@@ -13,56 +13,21 @@
 
 constexpr const int MAX_FRAMES_IN_FLIGHT = 2;
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback_function( VkDebugReportFlagsEXT flags,
-                                                        VkDebugReportObjectTypeEXT objType,
-                                                        uint64_t obj, size_t location,
-                                                        int32_t code, const char* layerPrefix,
-                                                        const char* msg, void* userData )
-{
-    std::cerr << "validation layer: " << msg << std::endl;
-
-    return VK_FALSE;
-}
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT ( VkInstance instance,
-                                                                const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
-                                                                const VkAllocationCallbacks* pAllocator,
-                                                                VkDebugReportCallbackEXT* pCallback )
-{
-    static auto func = ( PFN_vkCreateDebugReportCallbackEXT ) vkGetInstanceProcAddr ( instance, "vkCreateDebugReportCallbackEXT" );
-
-    if ( func != nullptr )
-    {
-        return func ( instance, pCreateInfo, pAllocator, pCallback );
-    }
-    else
-    {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT ( VkInstance instance,
-                                                             VkDebugReportCallbackEXT callback,
-                                                             const VkAllocationCallbacks* pAllocator )
-{
-    static auto func = ( PFN_vkDestroyDebugReportCallbackEXT ) vkGetInstanceProcAddr ( instance, "vkDestroyDebugReportCallbackEXT" );
-
-    if ( func != nullptr )
-    {
-        func ( instance, callback, pAllocator );
-    }
-}
-
 Renderer::Renderer( Window &window )
     :
     window_( window )
 {
-    instance_handle_                = create_instance();
+    instance_ = Vk::Instance( window_ );
 
     if( enable_validation_layers )
-        debug_callback_handle_      = create_debug_callback();
+        debug_report_ = Vk::DebugReport( &instance_ );
 
-    surface_handle_                 = create_surface();
-    gpu_handle_                     = pick_gpu();
-    device_handle_                  = create_device();
+    surface_ = Vk::Surface( window_, &instance_ );
+    gpu_ = Vk::PhysicalDevice( &instance_, &surface_ );
+
+    queue_family_indices_ = gpu_.find_queue_family_indices();
+
+    device_handle_                  = create_device( );
     graphics_queue_handle_          = get_queue( queue_family_indices_.graphics_family,  0 );
     present_queue_handle_           = get_queue( queue_family_indices_.present_family, 0 );
     command_pool_handle_            = create_command_pool();
@@ -101,13 +66,6 @@ Renderer::~Renderer()
     vkDestroyCommandPool( device_handle_, command_pool_handle_, nullptr );
 
     vkDestroyDevice( device_handle_, nullptr );
-
-    vkDestroySurfaceKHR( instance_handle_, surface_handle_, nullptr );
-
-    if( enable_validation_layers )
-        vkDestroyDebugReportCallbackEXT( instance_handle_, debug_callback_handle_, nullptr );
-
-    vkDestroyInstance( instance_handle_, nullptr );
 }
 
 void
@@ -207,102 +165,9 @@ Renderer::cleanup_swapchain()
     }
 }
 
-VkInstance
-Renderer::create_instance( ) const
-{
-    VkInstance instance;
-
-    auto extensions = window_.get_required_extensions();
-
-    if( enable_validation_layers && !check_validation_layer_support() )
-    {
-        throw VulkanException{ "Validation layers requested, but not available", __FILE__, __LINE__ };
-    }
-
-    VkApplicationInfo app_info = {};
-    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app_info.pApplicationName = window_.get_title().c_str();
-    app_info.applicationVersion = VK_MAKE_VERSION( 0, 0, 1 );
-    app_info.pEngineName = "No Engine";
-    app_info.engineVersion = VK_MAKE_VERSION( 0, 0, 1 );
-    app_info.apiVersion = VK_API_VERSION_1_1;
-
-    VkInstanceCreateInfo create_info = {};
-    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    create_info.pApplicationInfo = &app_info;
-    create_info.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
-    create_info.ppEnabledExtensionNames = extensions.data();
-
-    if( enable_validation_layers )
-    {
-        create_info.enabledLayerCount = static_cast<uint32_t>( validation_layers.size() );
-        create_info.ppEnabledLayerNames = validation_layers.data();
-    }
-    else
-    {
-        create_info.enabledLayerCount = 0;
-    }
-
-    if( vkCreateInstance( &create_info, nullptr, &instance ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to create instance", __FILE__, __LINE__ };
-
-    return instance;
-}
-VkDebugReportCallbackEXT
-Renderer::create_debug_callback( ) const
-{
-    VkDebugReportCallbackEXT callback;
-
-    VkDebugReportCallbackCreateInfoEXT create_info = { };
-    create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-    create_info.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-    create_info.pfnCallback = debug_callback_function;
-
-    if( vkCreateDebugReportCallbackEXT( instance_handle_, &create_info, nullptr, &callback ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to create debug report callback", __FILE__, __LINE__ };
-
-    return callback;
-}
-VkSurfaceKHR
-Renderer::create_surface() const
-{
-    return window_.create_surface( instance_handle_ );
-}
-VkPhysicalDevice
-Renderer::pick_gpu( )
-{
-    VkPhysicalDevice gpu_handle;
-
-    uint32_t device_count;
-    vkEnumeratePhysicalDevices( instance_handle_, &device_count, nullptr );
-
-    if( device_count == 0 )
-        throw VulkanException{ "Failed to find any GPUs with Vulkan support", __FILE__, __LINE__ };
-
-    std::vector<VkPhysicalDevice> available_devices( device_count );
-    vkEnumeratePhysicalDevices( instance_handle_, &device_count, available_devices.data() );
-
-    for( auto& device : available_devices )
-    {
-        if( is_device_suitable( device ) )
-        {
-            gpu_handle = device;
-            break;
-        }
-    }
-
-    VkPhysicalDeviceProperties properties;
-    vkGetPhysicalDeviceProperties( gpu_handle, &properties );
-
-    std::cout << properties.deviceName << std::endl;
-
-    return gpu_handle;
-}
 VkDevice
-Renderer::create_device( ) const
+Renderer::create_device( )
 {
-    VkDevice device;
-
     std::vector<VkDeviceQueueCreateInfo> queue_infos;
     std::set<int> unique_queue_families = { queue_family_indices_.graphics_family, queue_family_indices_.present_family };
 
@@ -338,13 +203,10 @@ Renderer::create_device( ) const
         create_info.enabledLayerCount = 0;
     }
 
-    if( vkCreateDevice( gpu_handle_, &create_info, nullptr, &device ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to create logical device", __FILE__, __LINE__ };
-
-    return  device;
+    return gpu_.create_device( create_info );
 }
 VkQueue
-Renderer::get_queue( int32_t family_index, uint32_t queue_index ) const
+Renderer::get_queue( int32_t family_index, uint32_t queue_index )
 {
     VkQueue queue;
 
@@ -353,7 +215,7 @@ Renderer::get_queue( int32_t family_index, uint32_t queue_index ) const
     return queue;
 }
 VkCommandPool
-Renderer::create_command_pool( ) const
+Renderer::create_command_pool( )
 {
     VkCommandPool command_pool;
 
@@ -367,7 +229,7 @@ Renderer::create_command_pool( ) const
     return command_pool;
 }
 VkSemaphore
-Renderer::create_semaphore( ) const
+Renderer::create_semaphore( )
 {
     VkSemaphore semaphore;
 
@@ -380,7 +242,7 @@ Renderer::create_semaphore( ) const
     return semaphore;
 }
 VkFence
-Renderer::create_fence() const
+Renderer::create_fence()
 {
     VkFence fence;
 
@@ -395,7 +257,7 @@ Renderer::create_fence() const
 }
 
 std::vector<VkSemaphore>
-Renderer::create_semaphores() const
+Renderer::create_semaphores()
 {
     std::vector<VkSemaphore> semaphores( MAX_FRAMES_IN_FLIGHT );
 
@@ -407,7 +269,7 @@ Renderer::create_semaphores() const
     return semaphores;
 }
 std::vector<VkFence>
-Renderer::create_fences() const
+Renderer::create_fences()
 {
     std::vector<VkFence> fences( MAX_FRAMES_IN_FLIGHT );
 
@@ -424,7 +286,7 @@ Renderer::create_swapchain( )
 {
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
-    auto support_details = query_swapchain_support( gpu_handle_ );
+    auto support_details = gpu_.query_swapchain_support( );
 
     auto surface_format = choose_surface_format( support_details.formats );
     auto present_mode = choose_present_mode( support_details.present_modes );
@@ -439,7 +301,7 @@ Renderer::create_swapchain( )
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface_handle_;
+    create_info.surface = surface_.get();
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
     create_info.imageColorSpace = surface_format.colorSpace;
@@ -491,7 +353,7 @@ Renderer::create_swapchain( VkSwapchainKHR& old_swapchain )
 {
     VkSwapchainKHR swapchain;
 
-    auto support_details = query_swapchain_support( gpu_handle_ );
+    auto support_details = gpu_.query_swapchain_support( );
 
     auto surface_format = choose_surface_format( support_details.formats );
     auto present_mode = choose_present_mode( support_details.present_modes );
@@ -506,7 +368,7 @@ Renderer::create_swapchain( VkSwapchainKHR& old_swapchain )
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface_handle_;
+    create_info.surface = surface_.get();
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
     create_info.imageColorSpace = surface_format.colorSpace;
@@ -984,8 +846,7 @@ Renderer::create_index_buffer()
 uint32_t
 Renderer::find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties )
 {
-    VkPhysicalDeviceMemoryProperties mem_properties;
-    vkGetPhysicalDeviceMemoryProperties( gpu_handle_, &mem_properties );
+    auto mem_properties = gpu_.get_physical_device_memory_properties();
 
     for( uint32_t i = 0; i < mem_properties.memoryTypeCount; ++i )
     {
@@ -996,129 +857,6 @@ Renderer::find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properti
     }
 
     throw VulkanException{ "Failed to find a suitable memory type", __FILE__, __LINE__ };
-}
-
-bool
-Renderer::check_validation_layer_support( ) const
-{
-    uint32_t layer_count;
-    vkEnumerateInstanceLayerProperties( &layer_count, nullptr );
-
-    std::vector<VkLayerProperties> available_layers( layer_count );
-    vkEnumerateInstanceLayerProperties( &layer_count, available_layers.data() );
-
-    for( const char* layer_name : validation_layers )
-    {
-        bool layer_found = false;
-
-        for( const auto& layer_property : available_layers )
-        {
-            if( strcmp( layer_name, layer_property.layerName ) == 0 )
-            {
-                layer_found = true;
-                break;
-            }
-        }
-
-        if( !layer_found )
-            return false;
-    }
-
-    return true;
-}
-bool
-Renderer::check_device_extension_support( VkPhysicalDevice &gpu_handle ) const
-{
-    uint32_t extension_count = 0;
-    vkEnumerateDeviceExtensionProperties( gpu_handle, nullptr, &extension_count, nullptr );
-
-    std::vector<VkExtensionProperties> available_extensions( extension_count );
-    vkEnumerateDeviceExtensionProperties( gpu_handle, nullptr, &extension_count, available_extensions.data() );
-
-    std::set<std::string> required_extensions( device_extensions.begin(), device_extensions.end() );
-
-    for( const auto& extension : available_extensions )
-    {
-        required_extensions.erase( extension.extensionName );
-    }
-
-    return required_extensions.empty();
-}
-bool
-Renderer::is_device_suitable( VkPhysicalDevice &gpu_handle )
-{
-    queue_family_indices_ = find_queue_family_indices( gpu_handle );
-
-    bool extension_supported = check_device_extension_support( gpu_handle );
-    bool swapchain_adequate = false;
-
-    if( extension_supported )
-    {
-        SwapchainSupportDetails details = query_swapchain_support( gpu_handle );
-        swapchain_adequate = !details.formats.empty() && !details.present_modes.empty();
-    }
-
-    return queue_family_indices_.is_complete() && swapchain_adequate && extension_supported;
-}
-
-Renderer::QueueFamilyIndices
-Renderer::find_queue_family_indices( VkPhysicalDevice &gpu_handle ) const
-{
-    QueueFamilyIndices indices;
-
-    uint32_t queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties( gpu_handle, &queue_family_count, nullptr );
-
-    std::vector<VkQueueFamilyProperties> queue_family_properties( queue_family_count );
-    vkGetPhysicalDeviceQueueFamilyProperties( gpu_handle, &queue_family_count, queue_family_properties.data() );
-
-    int i = 0;
-    for( const auto& queue_family_property : queue_family_properties )
-    {
-        if( queue_family_property.queueCount > 0 && queue_family_property.queueFlags & VK_QUEUE_GRAPHICS_BIT )
-            indices.graphics_family = i;
-
-        VkBool32 present_support;
-        vkGetPhysicalDeviceSurfaceSupportKHR( gpu_handle, i, surface_handle_, &present_support );
-
-        if( queue_family_property.queueCount > 0 && present_support )
-            indices.present_family = i;
-
-        if( indices.is_complete() )
-            break;
-
-        ++i;
-    }
-
-    return indices;
-}
-
-Renderer::SwapchainSupportDetails
-Renderer::query_swapchain_support( VkPhysicalDevice &gpu_handle ) const
-{
-    SwapchainSupportDetails details;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu_handle, surface_handle_, &details.capabilities );
-
-    uint32_t format_count;
-    vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_handle_, &format_count, nullptr );
-
-    if( format_count != 0 )
-    {
-        details.formats.resize( format_count );
-        vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_handle_, &format_count, details.formats.data() );
-    }
-
-    uint32_t present_mode_count;
-    vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_handle_, &present_mode_count, nullptr );
-
-    if( present_mode_count != 0 )
-    {
-        details.present_modes.resize( present_mode_count );
-        vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_handle_, &present_mode_count, details.present_modes.data() );
-    }
-
-    return details;
 }
 
 VkSurfaceFormatKHR
