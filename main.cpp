@@ -15,7 +15,7 @@ int main( )
 
     try
     {
-        Window window( 100, 100, 1280, 720, "Projekt - Vulkan" );
+        Window window( 100, 100, 1280, 720, "Project - Vulkan" );
 
         try
         {

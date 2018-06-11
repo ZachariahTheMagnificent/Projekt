@@ -23,6 +23,6 @@ add_executable(Projekt main.cpp
 
         Game/Game.h
         Game/Game.cpp
-        )
+        Engine/Vulkan/Instance.h Engine/Vulkan/Instance.cpp Engine/Vulkan/DebugReport.h Engine/Vulkan/DebugReport.cpp Engine/Vulkan/Surface.h Engine/Vulkan/Surface.cpp Engine/Vulkan/PhysicalDevice.h Engine/Vulkan/PhysicalDevice.cpp Engine/Vulkan/Helpers/SwapchainSupportDetails.h Engine/Vulkan/Helpers/QueueFamilyIndices.h)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )
