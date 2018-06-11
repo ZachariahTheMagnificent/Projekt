@@ -35,6 +35,8 @@ namespace Vk
 
             p_instance_ = surface.p_instance_;
         }
+
+        *this;
     }
 
     Helpers::QueueFamilyIndices Surface::find_queue_family_indices( VkPhysicalDevice &physical_device_handle )
