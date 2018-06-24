@@ -9,6 +9,13 @@
 
 #include "Vertex.h"
 #include "../Window/Window.h"
+#include "../Vulkan/Core/Instance.h"
+#include "../Vulkan/Core/DebugReport.h"
+#include "../Vulkan/Graphics/Surface.h"
+#include "../Vulkan/Core/PhysicalDevice.h"
+#include "../Vulkan/Core/LogicalDevice.h"
+#include "../Vulkan/Core/Queue.h"
+#include "../Vulkan/Core/CommandPool.h"
 
 class Renderer
 {
@@ -33,7 +40,7 @@ private:
     };
 
 public:
-    explicit Renderer( Window& window );
+    explicit Renderer( const Window& window );
     ~Renderer();
 
     void draw_frame();
@@ -42,13 +49,15 @@ public:
     void cleanup_swapchain();
 
 private:
+    /*
     VkInstance                      create_instance() const;
     VkDebugReportCallbackEXT        create_debug_callback() const;
     VkSurfaceKHR                    create_surface() const;
     VkPhysicalDevice                pick_gpu();
     VkDevice                        create_device() const;
     VkQueue                         get_queue( int32_t family_index, uint32_t queue_index ) const;
-    VkCommandPool                   create_command_pool() const;
+    VkCommandPool                   create_command_pool();
+     */
     VkSemaphore                     create_semaphore() const;
     VkFence                         create_fence() const;
 
@@ -95,8 +104,18 @@ private:
     };
 
 private:
-    Window& window_;
+    const Window& window_;
 
+    Vk::Core::Instance          instance_;
+    Vk::Core::DebugReport       debug_report_;
+    Vk::Graphics::Surface       surface_;
+    Vk::Core::PhysicalDevice    gpu_;
+    Vk::Core::LogicalDevice     logical_device_;
+    Vk::Core::Queue             graphics_queue_;
+    Vk::Core::Queue             present_queue_;
+    Vk::Core::CommandPool       command_pool_;
+
+    /*
     VkInstance                      instance_handle_                    = VK_NULL_HANDLE;
     VkDebugReportCallbackEXT        debug_callback_handle_              = VK_NULL_HANDLE;
     VkSurfaceKHR                    surface_handle_                     = VK_NULL_HANDLE;
@@ -105,6 +124,7 @@ private:
     VkQueue                         graphics_queue_handle_              = VK_NULL_HANDLE;
     VkQueue                         present_queue_handle_               = VK_NULL_HANDLE;
     VkCommandPool                   command_pool_handle_                = VK_NULL_HANDLE;
+     */
 
     std::vector<VkSemaphore>        image_available_semaphore_handles_;
     std::vector<VkSemaphore>        render_finished_semaphore_handles_;
@@ -130,7 +150,8 @@ private:
     VkBuffer                        index_buffer_handle_                = VK_NULL_HANDLE;
     VkDeviceMemory                  index_buffer_memory_handle_         = VK_NULL_HANDLE;
 
-    QueueFamilyIndices queue_family_indices_;
+    // QueueFamilyIndices queue_family_indices_;
+
 
     size_t current_frame = 0;
 

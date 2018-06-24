@@ -8,11 +8,14 @@
 
 #include "Renderer.h"
 
+#include "../Vulkan/Helpers/QueueFamilyIndices.h"
+
 #include "../Utils/Exception/VulkanException.h"
 #include "../Utils/File/Read.h"
 
 constexpr const int MAX_FRAMES_IN_FLIGHT = 2;
 
+/*
 VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback_function( VkDebugReportFlagsEXT flags,
                                                         VkDebugReportObjectTypeEXT objType,
                                                         uint64_t obj, size_t location,
@@ -50,11 +53,27 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT ( VkInstance instance
         func ( instance, callback, pAllocator );
     }
 }
+ */
 
-Renderer::Renderer( Window &window )
+Renderer::Renderer( const Window &window )
     :
     window_( window )
 {
+    auto extensions = window_.get_required_extensions();
+
+    instance_           = Vk::Core::Instance( window_.get_title(), validation_layers, extensions );
+
+    if constexpr ( enable_validation_layers )
+        debug_report_   = Vk::Core::DebugReport( &instance_ );
+
+    surface_            = Vk::Graphics::Surface( &instance_, window_ );
+    gpu_                = Vk::Core::PhysicalDevice( instance_, surface_ );
+    logical_device_     = Vk::Core::LogicalDevice( gpu_, validation_layers, device_extensions );
+    graphics_queue_     = Vk::Core::Queue( logical_device_, gpu_, Vk::Helpers::QueueFamilyType::eGRAPHICS, 0 );
+    present_queue_      = Vk::Core::Queue( logical_device_, gpu_, Vk::Helpers::QueueFamilyType::ePRESENT, 0 );
+    command_pool_       = Vk::Core::CommandPool( gpu_, &logical_device_, Vk::Helpers::QueueFamilyType::eGRAPHICS );
+
+    /*
     instance_handle_                = create_instance();
 
     if( enable_validation_layers )
@@ -66,6 +85,7 @@ Renderer::Renderer( Window &window )
     graphics_queue_handle_          = get_queue( queue_family_indices_.graphics_family,  0 );
     present_queue_handle_           = get_queue( queue_family_indices_.present_family, 0 );
     command_pool_handle_            = create_command_pool();
+     */
 
     create_vertex_buffer();
     create_index_buffer();
@@ -79,28 +99,29 @@ Renderer::Renderer( Window &window )
 
 Renderer::~Renderer()
 {
-    vkQueueWaitIdle( graphics_queue_handle_ );
+    graphics_queue_.wait_idle();
 
-    vkDestroyBuffer( device_handle_, index_buffer_handle_, nullptr );
-    vkFreeMemory( device_handle_, index_buffer_memory_handle_, nullptr );
+    vkDestroyBuffer( logical_device_.get(), index_buffer_handle_, nullptr );
+    vkFreeMemory( logical_device_.get(), index_buffer_memory_handle_, nullptr );
 
-    vkDestroyBuffer( device_handle_, vertex_buffer_handle_, nullptr );
-    vkFreeMemory( device_handle_, vertex_buffer_memory_handle_, nullptr );
+    vkDestroyBuffer( logical_device_.get(), vertex_buffer_handle_, nullptr );
+    vkFreeMemory( logical_device_.get(), vertex_buffer_memory_handle_, nullptr );
 
     cleanup_swapchain();
 
     for( auto i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
     {
-        vkDestroySemaphore( device_handle_, image_available_semaphore_handles_[i], nullptr );
-        vkDestroySemaphore( device_handle_, render_finished_semaphore_handles_[i], nullptr );
-        vkDestroyFence( device_handle_, fences_[i], nullptr );
+        vkDestroySemaphore( logical_device_.get(), image_available_semaphore_handles_[i], nullptr );
+        vkDestroySemaphore( logical_device_.get(), render_finished_semaphore_handles_[i], nullptr );
+        vkDestroyFence( logical_device_.get(), fences_[i], nullptr );
     }
 
-    vkDestroySwapchainKHR( device_handle_, swapchain_handle_, nullptr );
+    vkDestroySwapchainKHR( logical_device_.get(), swapchain_handle_, nullptr );
 
-    vkDestroyCommandPool( device_handle_, command_pool_handle_, nullptr );
+    /*
+    vkDestroyCommandPool( logical_device_.get(), command_pool_handle_, nullptr );
 
-    vkDestroyDevice( device_handle_, nullptr );
+    vkDestroyDevice( logical_device_.get(), nullptr );
 
     vkDestroySurfaceKHR( instance_handle_, surface_handle_, nullptr );
 
@@ -108,16 +129,17 @@ Renderer::~Renderer()
         vkDestroyDebugReportCallbackEXT( instance_handle_, debug_callback_handle_, nullptr );
 
     vkDestroyInstance( instance_handle_, nullptr );
+     */
 }
 
 void
 Renderer::draw_frame( )
 {
-    vkWaitForFences( device_handle_, 1, &fences_[current_frame], VK_TRUE, std::numeric_limits<uint64_t>::max() );
-    vkResetFences( device_handle_, 1, &fences_[current_frame] );
+    vkWaitForFences( logical_device_.get(), 1, &fences_[current_frame], VK_TRUE, std::numeric_limits<uint64_t>::max() );
+    vkResetFences( logical_device_.get(), 1, &fences_[current_frame] );
 
     uint32_t image_index;
-    auto result = vkAcquireNextImageKHR( device_handle_, swapchain_handle_, std::numeric_limits<uint64_t>::max(),
+    auto result = vkAcquireNextImageKHR( logical_device_.get(), swapchain_handle_, std::numeric_limits<uint64_t>::max(),
                                          image_available_semaphore_handles_[current_frame], VK_NULL_HANDLE, &image_index );
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR )
@@ -143,8 +165,7 @@ Renderer::draw_frame( )
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = signal_semaphores;
 
-    if( vkQueueSubmit( graphics_queue_handle_, 1, &submit_info, fences_[current_frame] ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to submit graphics queue", __FILE__, __LINE__ };
+    graphics_queue_.submit( submit_info, fences_[current_frame] );
 
     VkSwapchainKHR swapchains[] = { swapchain_handle_ };
     VkPresentInfoKHR present_info = {};
@@ -155,7 +176,7 @@ Renderer::draw_frame( )
     present_info.pSwapchains = swapchains;
     present_info.pImageIndices = &image_index;
 
-    result = vkQueuePresentKHR( present_queue_handle_, &present_info );
+    result = present_queue_.present( present_info );
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
@@ -191,22 +212,26 @@ Renderer::cleanup_swapchain()
 {
     for( auto framebuffer : swapchain_framebuffer_handles_ )
     {
-        vkDestroyFramebuffer( device_handle_, framebuffer, nullptr );
+        vkDestroyFramebuffer( logical_device_.get(), framebuffer, nullptr );
     }
 
-    vkFreeCommandBuffers( device_handle_, command_pool_handle_, static_cast<uint32_t>( command_buffer_handles_.size() ),
+    command_pool_.free_command_buffers( command_buffer_handles_ );
+    /*
+    vkFreeCommandBuffers( logical_device_.get(), command_pool_handle_, static_cast<uint32_t>( command_buffer_handles_.size() ),
                           command_buffer_handles_.data() );
+    */
 
-    vkDestroyPipeline( device_handle_, pso_handle_, nullptr );
-    vkDestroyPipelineLayout( device_handle_, pso_layout_handle_, nullptr );
-    vkDestroyRenderPass( device_handle_, render_pass_handle_, nullptr );
+    vkDestroyPipeline( logical_device_.get(), pso_handle_, nullptr );
+    vkDestroyPipelineLayout( logical_device_.get(), pso_layout_handle_, nullptr );
+    vkDestroyRenderPass( logical_device_.get(), render_pass_handle_, nullptr );
 
     for( auto image_view : swapchain_image_view_handles_ )
     {
-        vkDestroyImageView( device_handle_, image_view, nullptr );
+        vkDestroyImageView( logical_device_.get(), image_view, nullptr );
     }
 }
 
+/*
 VkInstance
 Renderer::create_instance( ) const
 {
@@ -264,7 +289,8 @@ Renderer::create_debug_callback( ) const
     return callback;
 }
 VkSurfaceKHR
-Renderer::create_surface() const
+Renderer::
+create_surface() const
 {
     return window_.create_surface( instance_handle_ );
 }
@@ -274,13 +300,13 @@ Renderer::pick_gpu( )
     VkPhysicalDevice gpu_handle;
 
     uint32_t device_count;
-    vkEnumeratePhysicalDevices( instance_handle_, &device_count, nullptr );
+    vkEnumeratePhysicalDevices( instance_.get(), &device_count, nullptr );
 
     if( device_count == 0 )
         throw VulkanException{ "Failed to find any GPUs with Vulkan support", __FILE__, __LINE__ };
 
     std::vector<VkPhysicalDevice> available_devices( device_count );
-    vkEnumeratePhysicalDevices( instance_handle_, &device_count, available_devices.data() );
+    vkEnumeratePhysicalDevices( instance_.get(), &device_count, available_devices.data() );
 
     for( auto& device : available_devices )
     {
@@ -338,7 +364,7 @@ Renderer::create_device( ) const
         create_info.enabledLayerCount = 0;
     }
 
-    if( vkCreateDevice( gpu_handle_, &create_info, nullptr, &device ) != VK_SUCCESS )
+    if( vkCreateDevice( gpu_.get(), &create_info, nullptr, &device ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create logical device", __FILE__, __LINE__ };
 
     return  device;
@@ -348,24 +374,26 @@ Renderer::get_queue( int32_t family_index, uint32_t queue_index ) const
 {
     VkQueue queue;
 
-    vkGetDeviceQueue( device_handle_, static_cast<uint32_t>( family_index ), queue_index, &queue );
+    vkGetDeviceQueue( logical_device_.get(), static_cast<uint32_t>( family_index ), queue_index, &queue );
 
     return queue;
 }
 VkCommandPool
-Renderer::create_command_pool( ) const
+Renderer::create_command_pool( )
 {
     VkCommandPool command_pool;
 
+    auto& queue_family_indices = gpu_.get_queue_family_indices();
+
     VkCommandPoolCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    create_info.queueFamilyIndex = static_cast<uint32_t>( queue_family_indices_.graphics_family );
+    create_info.queueFamilyIndex = static_cast<uint32_t>( queue_family_indices.graphics_family );
 
-    if( vkCreateCommandPool( device_handle_, &create_info, nullptr, &command_pool ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to create command pool", __FILE__, __LINE__ };
+    command_pool = logical_device_.create_command_pool( create_info );
 
     return command_pool;
 }
+  */
 VkSemaphore
 Renderer::create_semaphore( ) const
 {
@@ -374,8 +402,7 @@ Renderer::create_semaphore( ) const
     VkSemaphoreCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    if( vkCreateSemaphore( device_handle_, &create_info, nullptr, &semaphore ) != VK_SUCCESS )
-        throw VulkanException{ "failed to create semaphore", __FILE__, __LINE__ };
+    semaphore = logical_device_.create_semaphore( create_info );
 
     return semaphore;
 }
@@ -388,8 +415,7 @@ Renderer::create_fence() const
     create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if( vkCreateFence( device_handle_, &create_info, nullptr, &fence ) != VK_SUCCESS )
-        throw VulkanException{ "Failed to create fence", __FILE__, __LINE__ };
+    fence = logical_device_.create_fence( create_info );
 
     return fence;
 }
@@ -424,7 +450,8 @@ Renderer::create_swapchain( )
 {
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
-    auto support_details = query_swapchain_support( gpu_handle_ );
+    auto gpu = gpu_.get();
+    auto support_details = query_swapchain_support( gpu );
 
     auto surface_format = choose_surface_format( support_details.formats );
     auto present_mode = choose_present_mode( support_details.present_modes );
@@ -439,13 +466,15 @@ Renderer::create_swapchain( )
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface_handle_;
+    create_info.surface = surface_.get();
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
     create_info.imageColorSpace = surface_format.colorSpace;
     create_info.imageExtent = extent;
     create_info.imageArrayLayers = 1;
     create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    auto queue_family_indices_ = gpu_.get_queue_family_indices();
 
     uint32_t queue_family_indices[] =
     {
@@ -477,12 +506,12 @@ Renderer::create_swapchain( )
     auto old_swapchain_handle_ = swapchain_handle_;
     create_info.oldSwapchain = old_swapchain_handle_;
 
-    if( vkCreateSwapchainKHR( device_handle_, &create_info, nullptr, &swapchain ) != VK_SUCCESS )
+    if( vkCreateSwapchainKHR( logical_device_.get(), &create_info, nullptr, &swapchain ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create swapchain", __FILE__, __LINE__ };
 
-    vkGetSwapchainImagesKHR( device_handle_, swapchain, &image_count, nullptr );
+    vkGetSwapchainImagesKHR( logical_device_.get(), swapchain, &image_count, nullptr );
     swapchain_images_.resize( image_count );
-    vkGetSwapchainImagesKHR( device_handle_, swapchain, &image_count, swapchain_images_.data() );
+    vkGetSwapchainImagesKHR( logical_device_.get(), swapchain, &image_count, swapchain_images_.data() );
 
     return swapchain;
 }
@@ -491,7 +520,8 @@ Renderer::create_swapchain( VkSwapchainKHR& old_swapchain )
 {
     VkSwapchainKHR swapchain;
 
-    auto support_details = query_swapchain_support( gpu_handle_ );
+    auto gpu = gpu_.get();
+    auto support_details = query_swapchain_support( gpu );
 
     auto surface_format = choose_surface_format( support_details.formats );
     auto present_mode = choose_present_mode( support_details.present_modes );
@@ -506,13 +536,15 @@ Renderer::create_swapchain( VkSwapchainKHR& old_swapchain )
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface_handle_;
+    create_info.surface = surface_.get();
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
     create_info.imageColorSpace = surface_format.colorSpace;
     create_info.imageExtent = extent;
     create_info.imageArrayLayers = 1;
     create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    auto queue_family_indices_ = gpu_.get_queue_family_indices();
 
     uint32_t queue_family_indices[] =
     {
@@ -543,12 +575,12 @@ Renderer::create_swapchain( VkSwapchainKHR& old_swapchain )
 
     create_info.oldSwapchain = old_swapchain;
 
-    if( vkCreateSwapchainKHR( device_handle_, &create_info, nullptr, &swapchain ) != VK_SUCCESS )
+    if( vkCreateSwapchainKHR( logical_device_.get(), &create_info, nullptr, &swapchain ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create swapchain", __FILE__, __LINE__ };
 
-    vkGetSwapchainImagesKHR( device_handle_, swapchain, &image_count, nullptr );
+    vkGetSwapchainImagesKHR( logical_device_.get(), swapchain, &image_count, nullptr );
     swapchain_images_.resize( image_count );
-    vkGetSwapchainImagesKHR( device_handle_, swapchain, &image_count, swapchain_images_.data() );
+    vkGetSwapchainImagesKHR( logical_device_.get(), swapchain, &image_count, swapchain_images_.data() );
 
     return swapchain;
 }
@@ -574,7 +606,7 @@ Renderer::create_image_views( )
         create_info.subresourceRange.baseArrayLayer = 0;
         create_info.subresourceRange.layerCount = 1;
 
-        if( vkCreateImageView( device_handle_, &create_info, nullptr, &image_views[i] ) != VK_SUCCESS )
+        if( vkCreateImageView( logical_device_.get(), &create_info, nullptr, &image_views[i] ) != VK_SUCCESS )
             throw VulkanException{ "Failed to create image view", __FILE__, __LINE__ };
     }
 
@@ -601,7 +633,7 @@ Renderer::create_framebuffers( )
         create_info.height = swapchain_extent_handle_.height;
         create_info.layers = 1;
 
-        if( vkCreateFramebuffer( device_handle_, &create_info, nullptr, &framebuffers[i] ) != VK_SUCCESS )
+        if( vkCreateFramebuffer( logical_device_.get(), &create_info, nullptr, &framebuffers[i] ) != VK_SUCCESS )
             throw VulkanException{ "Failed to create framebuffer", __FILE__, __LINE__ };
     }
 
@@ -614,11 +646,11 @@ Renderer::create_command_buffers( )
 
     VkCommandBufferAllocateInfo allocate_info = {};
     allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocate_info.commandPool = command_pool_handle_;
+    allocate_info.commandPool = command_pool_.get();
     allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocate_info.commandBufferCount = static_cast<uint32_t>( swapchain_framebuffer_handles_.size() );
 
-    if( vkAllocateCommandBuffers( device_handle_, &allocate_info, command_buffers.data() ) != VK_SUCCESS )
+    if( vkAllocateCommandBuffers( logical_device_.get(), &allocate_info, command_buffers.data() ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create command buffers", __FILE__, __LINE__ };
 
     return command_buffers;
@@ -665,7 +697,7 @@ Renderer::create_render_pass( )
     create_info.dependencyCount = 1;
     create_info.pDependencies = &subpass_dependency;
 
-    if( vkCreateRenderPass( device_handle_, &create_info, nullptr, &render_pass ) != VK_SUCCESS )
+    if( vkCreateRenderPass( logical_device_.get(), &create_info, nullptr, &render_pass ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create render pass", __FILE__, __LINE__ };
 
     return render_pass;
@@ -783,7 +815,7 @@ Renderer::create_pso( )
     pipeline_layout_info.pushConstantRangeCount = 0;
     pipeline_layout_info.pPushConstantRanges = nullptr;
 
-    if( vkCreatePipelineLayout( device_handle_, &pipeline_layout_info, nullptr, &pso_layout_handle_ ) != VK_SUCCESS )
+    if( vkCreatePipelineLayout( logical_device_.get(), &pipeline_layout_info, nullptr, &pso_layout_handle_ ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create pipeline layout", __FILE__, __LINE__ };
 
     VkGraphicsPipelineCreateInfo create_info = {};
@@ -802,11 +834,11 @@ Renderer::create_pso( )
     create_info.renderPass = render_pass_handle_;
     create_info.subpass = 0;
 
-    if( vkCreateGraphicsPipelines( device_handle_, VK_NULL_HANDLE, 1, &create_info, nullptr, &pso_handle_ ) != VK_SUCCESS )
+    if( vkCreateGraphicsPipelines( logical_device_.get(), VK_NULL_HANDLE, 1, &create_info, nullptr, &pso_handle_ ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create pipeline", __FILE__, __LINE__ };
 
-    vkDestroyShaderModule( device_handle_, frag_shader_module, nullptr );
-    vkDestroyShaderModule( device_handle_, vert_shader_module, nullptr );
+    vkDestroyShaderModule( logical_device_.get(), frag_shader_module, nullptr );
+    vkDestroyShaderModule( logical_device_.get(), vert_shader_module, nullptr );
 }
 VkShaderModule
 Renderer::create_shader_module( const std::string &shader_code )
@@ -818,7 +850,7 @@ Renderer::create_shader_module( const std::string &shader_code )
     create_info.codeSize = shader_code.size( );
     create_info.pCode = reinterpret_cast<const uint32_t *>( shader_code.data( ));
 
-    if ( vkCreateShaderModule( device_handle_, &create_info, nullptr, &shader ) != VK_SUCCESS )
+    if ( vkCreateShaderModule( logical_device_.get(), &create_info, nullptr, &shader ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create shader module", __FILE__, __LINE__ };
 
     return shader;
@@ -876,21 +908,21 @@ Renderer::create_buffer( VkDeviceSize& size, VkBufferUsageFlags usage, VkMemoryP
     create_info.usage = usage;
     create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if( vkCreateBuffer( device_handle_, &create_info, nullptr, &buffer ) != VK_SUCCESS )
+    if( vkCreateBuffer( logical_device_.get(), &create_info, nullptr, &buffer ) != VK_SUCCESS )
         throw VulkanException{ "Failed to create vertex buffer", __FILE__, __LINE__ };
 
     VkMemoryRequirements mem_reqs;
-    vkGetBufferMemoryRequirements( device_handle_, buffer, &mem_reqs );
+    vkGetBufferMemoryRequirements( logical_device_.get(), buffer, &mem_reqs );
 
     VkMemoryAllocateInfo allocate_info = {};
     allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocate_info.allocationSize = mem_reqs.size;
     allocate_info.memoryTypeIndex = find_memory_type( mem_reqs.memoryTypeBits, properties );
 
-    if( vkAllocateMemory( device_handle_, &allocate_info, nullptr, &buffer_memory ) != VK_SUCCESS )
+    if( vkAllocateMemory( logical_device_.get(), &allocate_info, nullptr, &buffer_memory ) != VK_SUCCESS )
         throw VulkanException{ "Failed to allocate device memory", __FILE__, __LINE__ };
 
-    vkBindBufferMemory( device_handle_, buffer, buffer_memory, 0 );
+    vkBindBufferMemory( logical_device_.get(), buffer, buffer_memory, 0 );
 }
 void
 Renderer::copy_buffer( VkBuffer &src_buffer, VkBuffer &dst_buffer, VkDeviceSize &size )
@@ -898,11 +930,11 @@ Renderer::copy_buffer( VkBuffer &src_buffer, VkBuffer &dst_buffer, VkDeviceSize 
     VkCommandBufferAllocateInfo allocate_info = {};
     allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocate_info.commandPool = command_pool_handle_;
+    allocate_info.commandPool = command_pool_.get();
     allocate_info.commandBufferCount = 1;
 
     VkCommandBuffer command_buffer;
-    vkAllocateCommandBuffers( device_handle_, &allocate_info, &command_buffer );
+    vkAllocateCommandBuffers( logical_device_.get(), &allocate_info, &command_buffer );
 
     VkCommandBufferBeginInfo begin_info = {};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -924,10 +956,10 @@ Renderer::copy_buffer( VkBuffer &src_buffer, VkBuffer &dst_buffer, VkDeviceSize 
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &command_buffer;
 
-    vkQueueSubmit( graphics_queue_handle_, 1, &submit_info, VK_NULL_HANDLE );
-    vkQueueWaitIdle( graphics_queue_handle_ );
+    graphics_queue_.submit( submit_info, VK_NULL_HANDLE );
+    graphics_queue_.wait_idle();
 
-    vkFreeCommandBuffers( device_handle_, command_pool_handle_, 1, &command_buffer );
+    command_pool_.free_command_buffer( command_buffer );
 }
 void
 Renderer::create_vertex_buffer()
@@ -942,9 +974,9 @@ Renderer::create_vertex_buffer()
                    staging_buffer, staging_buffer_memory );
 
     void* data;
-    vkMapMemory( device_handle_, staging_buffer_memory, 0, buffer_size, 0, &data );
+    vkMapMemory( logical_device_.get(), staging_buffer_memory, 0, buffer_size, 0, &data );
     memcpy( data, vertices.data(), static_cast<size_t>( buffer_size ) );
-    vkUnmapMemory( device_handle_, staging_buffer_memory );
+    vkUnmapMemory( logical_device_.get(), staging_buffer_memory );
 
     create_buffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -952,8 +984,8 @@ Renderer::create_vertex_buffer()
 
     copy_buffer( staging_buffer, vertex_buffer_handle_, buffer_size );
 
-    vkDestroyBuffer( device_handle_, staging_buffer, nullptr );
-    vkFreeMemory( device_handle_, staging_buffer_memory, nullptr );
+    vkDestroyBuffer( logical_device_.get(), staging_buffer, nullptr );
+    vkFreeMemory( logical_device_.get(), staging_buffer_memory, nullptr );
 }
 void
 Renderer::create_index_buffer()
@@ -968,9 +1000,9 @@ Renderer::create_index_buffer()
                    staging_buffer, staging_buffer_memory );
 
     void* data;
-    vkMapMemory( device_handle_, staging_buffer_memory, 0, buffer_size, 0, &data );
+    vkMapMemory( logical_device_.get(), staging_buffer_memory, 0, buffer_size, 0, &data );
     memcpy( data, indices_.data(), static_cast<size_t>( buffer_size ) );
-    vkUnmapMemory( device_handle_, staging_buffer_memory );
+    vkUnmapMemory( logical_device_.get(), staging_buffer_memory );
 
     create_buffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -978,14 +1010,14 @@ Renderer::create_index_buffer()
 
     copy_buffer( staging_buffer, index_buffer_handle_, buffer_size );
 
-    vkDestroyBuffer( device_handle_, staging_buffer, nullptr );
-    vkFreeMemory( device_handle_, staging_buffer_memory, nullptr );
+    vkDestroyBuffer( logical_device_.get(), staging_buffer, nullptr );
+    vkFreeMemory( logical_device_.get(), staging_buffer_memory, nullptr );
 }
 uint32_t
 Renderer::find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties )
 {
     VkPhysicalDeviceMemoryProperties mem_properties;
-    vkGetPhysicalDeviceMemoryProperties( gpu_handle_, &mem_properties );
+    vkGetPhysicalDeviceMemoryProperties( gpu_.get(), &mem_properties );
 
     for( uint32_t i = 0; i < mem_properties.memoryTypeCount; ++i )
     {
@@ -1044,6 +1076,7 @@ Renderer::check_device_extension_support( VkPhysicalDevice &gpu_handle ) const
 
     return required_extensions.empty();
 }
+/*
 bool
 Renderer::is_device_suitable( VkPhysicalDevice &gpu_handle )
 {
@@ -1061,6 +1094,7 @@ Renderer::is_device_suitable( VkPhysicalDevice &gpu_handle )
     return queue_family_indices_.is_complete() && swapchain_adequate && extension_supported;
 }
 
+ */
 Renderer::QueueFamilyIndices
 Renderer::find_queue_family_indices( VkPhysicalDevice &gpu_handle ) const
 {
@@ -1079,7 +1113,7 @@ Renderer::find_queue_family_indices( VkPhysicalDevice &gpu_handle ) const
             indices.graphics_family = i;
 
         VkBool32 present_support;
-        vkGetPhysicalDeviceSurfaceSupportKHR( gpu_handle, i, surface_handle_, &present_support );
+        vkGetPhysicalDeviceSurfaceSupportKHR( gpu_handle, i, surface_.get(), &present_support );
 
         if( queue_family_property.queueCount > 0 && present_support )
             indices.present_family = i;
@@ -1098,24 +1132,24 @@ Renderer::query_swapchain_support( VkPhysicalDevice &gpu_handle ) const
 {
     SwapchainSupportDetails details;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu_handle, surface_handle_, &details.capabilities );
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu_handle, surface_.get(), &details.capabilities );
 
     uint32_t format_count;
-    vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_handle_, &format_count, nullptr );
+    vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_.get(), &format_count, nullptr );
 
     if( format_count != 0 )
     {
         details.formats.resize( format_count );
-        vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_handle_, &format_count, details.formats.data() );
+        vkGetPhysicalDeviceSurfaceFormatsKHR( gpu_handle, surface_.get(), &format_count, details.formats.data() );
     }
 
     uint32_t present_mode_count;
-    vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_handle_, &present_mode_count, nullptr );
+    vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_.get(), &present_mode_count, nullptr );
 
     if( present_mode_count != 0 )
     {
         details.present_modes.resize( present_mode_count );
-        vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_handle_, &present_mode_count, details.present_modes.data() );
+        vkGetPhysicalDeviceSurfacePresentModesKHR( gpu_handle, surface_.get(), &present_mode_count, details.present_modes.data() );
     }
 
     return details;

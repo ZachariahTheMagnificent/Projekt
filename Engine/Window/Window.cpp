@@ -9,7 +9,6 @@
 #include "../Utils/Exception/GlfwException.h"
 #include "../Utils/Exception/VulkanException.h"
 
-
 Window::Window( std::uint32_t width, std::uint32_t height, const std::string &title )
     :
     width_( width ),
