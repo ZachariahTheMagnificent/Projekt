@@ -31,7 +31,7 @@ typedef struct VkLayerInstanceDispatchTable_ {
     // Manually add in GetPhysicalDeviceProcAddr entry
     PFN_GetPhysicalDeviceProcAddr GetPhysicalDeviceProcAddr;
 
-    // ---- Core 1_0 commands
+    // ---- core 1_0 commands
     PFN_vkCreateInstance CreateInstance;
     PFN_vkDestroyInstance DestroyInstance;
     PFN_vkEnumeratePhysicalDevices EnumeratePhysicalDevices;
@@ -49,7 +49,7 @@ typedef struct VkLayerInstanceDispatchTable_ {
     PFN_vkEnumerateDeviceLayerProperties EnumerateDeviceLayerProperties;
     PFN_vkGetPhysicalDeviceSparseImageFormatProperties GetPhysicalDeviceSparseImageFormatProperties;
 
-    // ---- Core 1_1 commands
+    // ---- core 1_1 commands
     PFN_vkEnumerateInstanceVersion EnumerateInstanceVersion;
     PFN_vkEnumeratePhysicalDeviceGroups EnumeratePhysicalDeviceGroups;
     PFN_vkGetPhysicalDeviceFeatures2 GetPhysicalDeviceFeatures2;
@@ -204,7 +204,7 @@ typedef struct VkLayerInstanceDispatchTable_ {
 // Device function pointer dispatch table
 typedef struct VkLayerDispatchTable_ {
 
-    // ---- Core 1_0 commands
+    // ---- core 1_0 commands
     PFN_vkGetDeviceProcAddr GetDeviceProcAddr;
     PFN_vkDestroyDevice DestroyDevice;
     PFN_vkGetDeviceQueue GetDeviceQueue;
@@ -327,7 +327,7 @@ typedef struct VkLayerDispatchTable_ {
     PFN_vkCmdEndRenderPass CmdEndRenderPass;
     PFN_vkCmdExecuteCommands CmdExecuteCommands;
 
-    // ---- Core 1_1 commands
+    // ---- core 1_1 commands
     PFN_vkBindBufferMemory2 BindBufferMemory2;
     PFN_vkBindImageMemory2 BindImageMemory2;
     PFN_vkGetDeviceGroupPeerMemoryFeatures GetDeviceGroupPeerMemoryFeatures;

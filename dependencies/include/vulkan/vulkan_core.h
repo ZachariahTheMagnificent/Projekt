@@ -22,7 +22,7 @@ extern "C" {
 */
 
 /*
-** This header is generated from the Khronos Vulkan XML API Registry.
+** This header is generated from the Khronos vulkan XML API Registry.
 **
 */
 
@@ -36,7 +36,7 @@ extern "C" {
 // DEPRECATED: This define has been removed. Specific version defines (e.g. VK_API_VERSION_1_0), or the VK_MAKE_VERSION macro, should be used instead.
 //#define VK_API_VERSION VK_MAKE_VERSION(1, 0, 0) // Patch version should always be set to 0
 
-// Vulkan 1.0 version number
+// vulkan 1.0 version number
 #define VK_API_VERSION_1_0 VK_MAKE_VERSION(1, 0, 0)// Patch version should always be set to 0
 
 #define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
@@ -3654,7 +3654,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteCommands(
 #endif
 
 #define VK_VERSION_1_1 1
-// Vulkan 1.1 version number
+// vulkan 1.1 version number
 #define VK_API_VERSION_1_1 VK_MAKE_VERSION(1, 1, 0)// Patch version should always be set to 0
 
 

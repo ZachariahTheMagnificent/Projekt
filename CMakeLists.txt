@@ -6,42 +6,47 @@ include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
 link_directories( ${PROJECT_SOURCE_DIR}/dependencies/lib/vulkan )
 link_directories( ${PROJECT_SOURCE_DIR}/dependencies/lib/glfw )
 
-set(CMAKE_CXX_STANDARD 17)
+set( CMAKE_CXX_STANDARD 17 )
 
-add_executable(Projekt main.cpp
+add_executable( Projekt main.cpp
 
-        Engine/Graphics/Renderer.h
-        Engine/Graphics/Renderer.cpp
-        Engine/Graphics/Vertex.h
-        Engine/Utils/Exception/Exception.h
-        Engine/Utils/Exception/GlfwException.h
-        Engine/Utils/Exception/VulkanException.h
-        Engine/Utils/File/Read.h
-        Engine/Utils/File/Write.h
-        Engine/Vulkan/Core/CommandBuffers.h
-        Engine/Vulkan/Core/CommandPool.cpp
-        Engine/Vulkan/Core/CommandPool.h
-        Engine/Vulkan/Core/DebugReport.cpp
-        Engine/Vulkan/Core/DebugReport.h
-        Engine/Vulkan/Core/Fences.h
-        Engine/Vulkan/Core/Instance.cpp
-        Engine/Vulkan/Core/Instance.h
-        Engine/Vulkan/Core/LogicalDevice.cpp
-        Engine/Vulkan/Core/LogicalDevice.h
-        Engine/Vulkan/Core/PhysicalDevice.cpp
-        Engine/Vulkan/Core/PhysicalDevice.h
-        Engine/Vulkan/Core/Queue.cpp
-        Engine/Vulkan/Core/Queue.h
-        Engine/Vulkan/Core/Semaphores.h
-        Engine/Vulkan/Core/ShaderModule.cpp
-        Engine/Vulkan/Core/ShaderModule.h
-        Engine/Vulkan/Graphics/Surface.h
-        Engine/Vulkan/Helpers/QueueFamilyIndices.h
-        Engine/Window/Window.h
-        Engine/Window/Window.cpp
+        engine/graphics/renderer.h
+        engine/graphics/renderer.cpp
+        engine/graphics/vertex.h
+        engine/utils/exception/exception.h
+        engine/utils/exception/glfw_exception.h
+        engine/utils/exception/vulkan_exception.h
+        engine/utils/file_io/read.h
+        engine/utils/file_io/write.h
+        engine/vulkan/core/command_buffers.h
+        engine/vulkan/core/command_pool.cpp
+        engine/vulkan/core/command_pool.h
+        engine/vulkan/core/debug_report.cpp
+        engine/vulkan/core/debug_report.h
+        engine/vulkan/core/fences.h
+        engine/vulkan/core/instance.cpp
+        engine/vulkan/core/instance.h
+        engine/vulkan/core/logical_device.cpp
+        engine/vulkan/core/logical_device.h
+        engine/vulkan/core/physical_device.cpp
+        engine/vulkan/core/physical_device.h
+        engine/vulkan/core/queue.cpp
+        engine/vulkan/core/queue.h
+        engine/vulkan/core/semaphores.h
+        engine/vulkan/core/shader_module.cpp
+        engine/vulkan/core/shader_module.h
+        engine/vulkan/graphics/frame_buffers.h
+        engine/vulkan/graphics/surface.cpp
+        engine/vulkan/graphics/surface.h
+        engine/vulkan/graphics/swapchain.cpp
+        engine/vulkan/graphics/swapchain.h
+        engine/vulkan/helpers/queue_family_indices.h
+        engine/vulkan/helpers/swapchain_support_details.h
+        engine/window/window.h
+        engine/window/window.cpp
 
-        Game/Game.h
-        Game/Game.cpp
-        Engine/Vulkan/Graphics/Surface.cpp)
+        game/game.h
+        game/game.cpp
+        )
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

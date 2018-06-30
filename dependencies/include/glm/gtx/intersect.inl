@@ -4,7 +4,7 @@
 // Created : 2007-04-03
 // Updated : 2009-01-20
 // Licence : This source is under MIT licence
-// File    : glm/gtx/intersect.inl
+// file_io    : glm/gtx/intersect.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../geometric.hpp"

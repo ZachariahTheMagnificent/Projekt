@@ -121,7 +121,7 @@ extern "C" {
  */
 #include <stddef.h>
 
-/* Include because it is needed by Vulkan and related functions.
+/* Include because it is needed by vulkan and related functions.
  */
 #include <stdint.h>
 

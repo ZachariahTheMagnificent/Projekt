@@ -1,5 +1,5 @@
 //
-// File: vk_icd.h
+// file_io: vk_icd.h
 //
 /*
  * Copyright (c) 2015-2016 The Khronos Group Inc.
@@ -36,7 +36,7 @@
 //   Version 4 - Add unknown physical device extension qyering via
 //               vk_icdGetPhysicalDeviceProcAddr.
 //   Version 5 - Tells ICDs that the loader is now paying attention to the
-//               application version of Vulkan passed into the ApplicationInfo
+//               application version of vulkan passed into the ApplicationInfo
 //               structure during vkCreateInstance.  This will tell the ICD
 //               that if the loader is older, it should automatically fail a
 //               call for any API version > 1.0.  Otherwise, the loader will

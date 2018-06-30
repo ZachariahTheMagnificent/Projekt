@@ -1,5 +1,5 @@
 //
-// File: vk_layer.h
+// file_io: vk_layer.h
 //
 /*
  * Copyright (c) 2015-2017 The Khronos Group Inc.
@@ -21,7 +21,7 @@
  */
 
 /* Need to define dispatch table
- * Core struct can then have ptr to dispatch table at the top
+ * core struct can then have ptr to dispatch table at the top
  * Along with object ptrs for current and next OBJ
  */
 #pragma once

@@ -22,7 +22,7 @@ extern "C" {
 */
 
 /*
-** This header is generated from the Khronos Vulkan XML API Registry.
+** This header is generated from the Khronos vulkan XML API Registry.
 **
 */
 

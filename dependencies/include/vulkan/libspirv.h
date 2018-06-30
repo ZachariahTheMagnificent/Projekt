@@ -42,7 +42,7 @@ extern "C" {
 #define SPIRV_TOOLS_EXPORT
 #endif
 
-// Helpers
+// helpers
 
 #define SPV_BIT(shift) (1 << (shift))
 
@@ -389,7 +389,7 @@ SPIRV_TOOLS_EXPORT const char* spvSoftwareVersionDetailsString(void);
 // environment-agnostic SPIR-V.
 typedef enum {
   SPV_ENV_UNIVERSAL_1_0,  // SPIR-V 1.0 latest revision, no other restrictions.
-  SPV_ENV_VULKAN_1_0,     // Vulkan 1.0 latest revision.
+  SPV_ENV_VULKAN_1_0,     // vulkan 1.0 latest revision.
   SPV_ENV_UNIVERSAL_1_1,  // SPIR-V 1.1 latest revision, no other restrictions.
   SPV_ENV_OPENCL_2_1,     // OpenCL Full Profile 2.1 latest revision.
   SPV_ENV_OPENCL_2_2,     // OpenCL Full Profile 2.2 latest revision.
@@ -411,7 +411,7 @@ typedef enum {
   SPV_ENV_OPENCL_EMBEDDED_2_1,  // OpenCL Embedded Profile 2.1 latest revision.
   SPV_ENV_OPENCL_EMBEDDED_2_2,  // OpenCL Embedded Profile 2.2 latest revision.
   SPV_ENV_UNIVERSAL_1_3,  // SPIR-V 1.3 latest revision, no other restrictions.
-  SPV_ENV_VULKAN_1_1,     // Vulkan 1.0 latest revision.
+  SPV_ENV_VULKAN_1_1,     // vulkan 1.0 latest revision.
 } spv_target_env;
 
 // SPIR-V Validator can be parameterized with the following Universal Limits.

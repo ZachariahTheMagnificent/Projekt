@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This header is generated from the Khronos Vulkan XML API Registry.
+// This header is generated from the Khronos vulkan XML API Registry.
 
 #ifndef VULKAN_HPP
 #define VULKAN_HPP
@@ -39225,7 +39225,7 @@ public:
   {
     switch (value)
     {
-    case PipelineBindPoint::eGraphics: return "Graphics";
+    case PipelineBindPoint::eGraphics: return "graphics";
     case PipelineBindPoint::eCompute: return "Compute";
     default: return "invalid";
     }
@@ -40109,7 +40109,7 @@ public:
   {
     switch (value)
     {
-    case QueueFlagBits::eGraphics: return "Graphics";
+    case QueueFlagBits::eGraphics: return "graphics";
     case QueueFlagBits::eCompute: return "Compute";
     case QueueFlagBits::eTransfer: return "Transfer";
     case QueueFlagBits::eSparseBinding: return "SparseBinding";
@@ -40122,7 +40122,7 @@ public:
   {
     if (!value) return "{}";
     std::string result;
-    if (value & QueueFlagBits::eGraphics) result += "Graphics | ";
+    if (value & QueueFlagBits::eGraphics) result += "graphics | ";
     if (value & QueueFlagBits::eCompute) result += "Compute | ";
     if (value & QueueFlagBits::eTransfer) result += "Transfer | ";
     if (value & QueueFlagBits::eSparseBinding) result += "SparseBinding | ";
@@ -41157,7 +41157,7 @@ public:
     switch (value)
     {
     case ValidationCheckEXT::eAll: return "All";
-    case ValidationCheckEXT::eShaders: return "Shaders";
+    case ValidationCheckEXT::eShaders: return "shaders";
     default: return "invalid";
     }
   }
@@ -41222,7 +41222,7 @@ public:
   {
     switch (value)
     {
-    case ObjectEntryUsageFlagBitsNVX::eGraphics: return "Graphics";
+    case ObjectEntryUsageFlagBitsNVX::eGraphics: return "graphics";
     case ObjectEntryUsageFlagBitsNVX::eCompute: return "Compute";
     default: return "invalid";
     }
@@ -41232,7 +41232,7 @@ public:
   {
     if (!value) return "{}";
     std::string result;
-    if (value & ObjectEntryUsageFlagBitsNVX::eGraphics) result += "Graphics | ";
+    if (value & ObjectEntryUsageFlagBitsNVX::eGraphics) result += "graphics | ";
     if (value & ObjectEntryUsageFlagBitsNVX::eCompute) result += "Compute | ";
     return "{" + result.substr(0, result.size() - 3) + "}";
   }

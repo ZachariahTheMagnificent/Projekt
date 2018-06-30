@@ -4,7 +4,7 @@
 // Created : 2009-05-07
 // Updated : 2009-05-07
 // Licence : This source is under MIT License
-// File    : glm/gtx/simd_vec4.inl
+// file_io    : glm/gtx/simd_vec4.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{

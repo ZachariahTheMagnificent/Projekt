@@ -1,5 +1,5 @@
 //
-// File: vk_sdk_platform.h
+// file_io: vk_sdk_platform.h
 //
 /*
  * Copyright (c) 2015-2016 The Khronos Group Inc.
