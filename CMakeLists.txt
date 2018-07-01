@@ -47,6 +47,6 @@ add_executable( Projekt main.cpp
 
         game/game.h
         game/game.cpp
-        )
+        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

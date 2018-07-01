@@ -16,8 +16,8 @@
 #include "../vulkan/core/logical_device.h"
 #include "../vulkan/core/command_pool.h"
 #include "../vulkan/core/queue.h"
-#include "../vulkan/core/command_pool.h"
 #include "../vulkan/graphics/swapchain.h"
+#include "../vulkan/core/render_pass.h"
 
 class renderer
 {
@@ -46,16 +46,9 @@ private:
     std::vector<VkSemaphore>        create_semaphores() const;
     std::vector<VkFence>            create_fences() const;
 
-    /*
-    VkSwapchainKHR                  create_swapchain();
-    VkSwapchainKHR                  create_swapchain( VkSwapchainKHR& old_swapchain );
-    std::vector<VkImageView>        create_image_views();
-        */
-
     std::vector<VkFramebuffer>      create_framebuffers();
     std::vector<VkCommandBuffer>    create_command_buffers();
 
-    VkRenderPass                    create_render_pass();
     void                            create_pso();
     VkShaderModule                  create_shader_module( const std::string& shader_code );
 
@@ -100,19 +93,11 @@ private:
     std::vector<VkFence>            fences_;
 
     vk::graphics::swapchain     swapchain_;
+    vk::core::render_pass       render_pass_;
 
-    /*
-    VkSwapchainKHR                  swapchain_handle_                   = VK_NULL_HANDLE;
-    VkFormat                        swapchain_format_handle_;
-    VkExtent2D                      swapchain_extent_handle_;
-    std::vector<VkImage>            swapchain_images_;
-    std::vector<VkImageView>        swapchain_image_view_handles_;
-     */
     std::vector<VkFramebuffer>     swapchain_framebuffer_handles_;
 
     std::vector<VkCommandBuffer>    command_buffer_handles_;
-
-    VkRenderPass                    render_pass_handle_                 = VK_NULL_HANDLE;
 
     VkPipeline                      pso_handle_                         = VK_NULL_HANDLE;
     VkPipelineLayout                pso_layout_handle_                  = VK_NULL_HANDLE;

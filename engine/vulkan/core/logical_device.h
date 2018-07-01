@@ -60,6 +60,9 @@ namespace vk
             VkImageView* create_image_views( VkImage* image_handles, VkImageViewCreateInfo& create_info, uint32_t count ) const;
             VkImageView* destroy_image_views( VkImageView* image_view_handles, uint32_t count ) const;
 
+            VkRenderPass create_render_pass( VkRenderPassCreateInfo& create_info ) const;
+            VkRenderPass destroy_render_pass( VkRenderPass& render_pass_handle ) const;
+
             VkFramebuffer* create_frame_buffers( VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info, uint32_t count ) const;
             VkFramebuffer* destroy_frame_buffers( VkFramebuffer* frame_buffer_handles, uint32_t count ) const;
 

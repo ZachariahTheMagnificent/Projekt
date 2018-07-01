@@ -267,7 +267,7 @@ namespace vk
                 create_info.image = image_handles[i];
 
                 if( vkCreateImageView( device_handle_, &create_info, nullptr, &image_view_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create Image View" << std::endl;
+                    std::cerr << "Failed to create Image View." << std::endl;
                 else
                     std::cout << "Image View created successfully." << std::endl;
             }
@@ -280,11 +280,35 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 vkDestroyImageView( device_handle_, image_view_handles[i], nullptr );
+
+                std::cout << "Image View destroyed." << std::endl;
             }
 
             delete[] image_view_handles;
 
             return nullptr;
+        }
+
+        VkRenderPass
+        logical_device::create_render_pass( VkRenderPassCreateInfo& create_info ) const
+        {
+            VkRenderPass render_pass_handle;
+
+            if( vkCreateRenderPass( device_handle_, &create_info, nullptr, &render_pass_handle ) != VK_NULL_HANDLE )
+                std::cerr << "Failed to create Render Pass." << std::endl;
+            else
+                std::cout << "Render Pass created successfully." << std::endl;
+
+            return render_pass_handle;
+        }
+        VkRenderPass
+        logical_device::destroy_render_pass( VkRenderPass& render_pass_handle ) const
+        {
+            vkDestroyRenderPass( device_handle_, render_pass_handle, nullptr );
+
+            std::cout << "Render Pass destroyed." << std::endl;
+
+            return VK_NULL_HANDLE;
         }
 
         VkFramebuffer*

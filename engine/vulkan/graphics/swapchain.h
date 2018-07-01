@@ -42,6 +42,10 @@ namespace vk
             {
                 return format_;
             }
+            const VkFormat& get_format() const
+            {
+                return format_;
+            }
             VkExtent2D& get_extent()
             {
                 return extent_;
