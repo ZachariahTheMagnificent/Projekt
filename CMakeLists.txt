@@ -12,7 +12,6 @@ add_executable( Projekt main.cpp
 
         engine/graphics/renderer.h
         engine/graphics/renderer.cpp
-        engine/graphics/vertex.h
         engine/utils/exception/exception.h
         engine/utils/exception/glfw_exception.h
         engine/utils/exception/vulkan_exception.h
@@ -47,6 +46,6 @@ add_executable( Projekt main.cpp
 
         game/game.h
         game/game.cpp
-        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp)
+        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp engine/vulkan/core/compute_pipeline.h engine/vulkan/core/compute_pipeline.cpp engine/vulkan/graphics/graphics_pipeline.h engine/vulkan/graphics/graphics_pipeline.cpp engine/vulkan/graphics/vertex.h)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

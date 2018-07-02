@@ -10,7 +10,9 @@ namespace vk
 {
     namespace core
     {
-        shader_module::shader_module( const std::string& shader_location )
+        shader_module::shader_module( const logical_device* p_logical_device, const std::string& shader_location )
+            :
+            p_logical_device_( p_logical_device )
         {
             auto shader_code = read_from_binary_file( shader_location );
 
@@ -30,7 +32,7 @@ namespace vk
             shader_module_handle_ = p_logical_device_->destroy_shader_module( shader_module_handle_ );
         }
 
-        VkPipelineShaderStageCreateInfo shader_module::create_shader_stage_info( VkShaderStageFlagBits& stage_flag )
+        VkPipelineShaderStageCreateInfo shader_module::create_shader_stage_info( VkShaderStageFlagBits stage_flag )
         {
             VkPipelineShaderStageCreateInfo create_info = {};
             create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

@@ -15,12 +15,12 @@ namespace vk
         {
         public:
             shader_module( ) = default;
-            explicit shader_module( const std::string& shader_location );
+            shader_module( const logical_device* p_logical_device, const std::string& shader_location );
             shader_module( const shader_module& shader_module ) = delete;
             shader_module( shader_module&& shader_module ) noexcept;
             ~shader_module( );
 
-            VkPipelineShaderStageCreateInfo create_shader_stage_info( VkShaderStageFlagBits& stage_flag );
+            VkPipelineShaderStageCreateInfo create_shader_stage_info( VkShaderStageFlagBits stage_flag );
 
             shader_module& operator=( const shader_module& shader_module ) = delete;
             shader_module& operator=( shader_module&& shader_module ) noexcept;

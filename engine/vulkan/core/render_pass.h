@@ -25,7 +25,7 @@ namespace vk
             render_pass( render_pass&& render_pass ) noexcept;
             ~render_pass( );
 
-            VkRenderPass& get()
+            const VkRenderPass& get() const
             {
                 return render_pass_handle_;
             }

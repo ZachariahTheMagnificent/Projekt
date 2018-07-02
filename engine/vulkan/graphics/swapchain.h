@@ -38,15 +38,11 @@ namespace vk
                 return image_count_;
             }
 
-            VkFormat& get_format()
-            {
-                return format_;
-            }
             const VkFormat& get_format() const
             {
                 return format_;
             }
-            VkExtent2D& get_extent()
+            const VkExtent2D& get_extent() const
             {
                 return extent_;
             }

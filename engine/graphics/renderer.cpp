@@ -33,6 +33,9 @@ renderer::renderer( const window &window )
     present_queue_      = vk::core::queue( logical_device_, gpu_, vk::helpers::queue_family_type::e_present, 0 );
     command_pool_       = vk::core::command_pool( gpu_, &logical_device_, vk::helpers::queue_family_type::e_graphics );
 
+    vertex_shader_      = vk::core::shader_module( &logical_device_, "../game/shaders/vert.spv" );
+    fragment_shader_    = vk::core::shader_module( &logical_device_, "../game/shaders/frag.spv" );
+
     /*
     instance_handle_                = create_instance();
 
@@ -143,7 +146,8 @@ renderer::recreate_swapchain( )
     swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_ );
     render_pass_ = vk::core::render_pass( &logical_device_, swapchain_ );
 
-    create_pso();
+    graphics_pipeline_ = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, vertex_shader_, fragment_shader_ );
+    //create_pso();
 
     swapchain_framebuffer_handles_  = create_framebuffers();
     command_buffer_handles_         = create_command_buffers();
@@ -161,8 +165,10 @@ renderer::cleanup_swapchain()
 
     command_pool_.free_command_buffers( command_buffer_handles_ );
 
+    /*
     vkDestroyPipeline( logical_device_.get(), pso_handle_, nullptr );
     vkDestroyPipelineLayout( logical_device_.get(), pso_layout_handle_, nullptr );
+    */
 }
 
 VkSemaphore
@@ -260,6 +266,7 @@ renderer::create_command_buffers( )
     return command_buffers;
 }
 
+/*
 void
 renderer::create_pso( )
 {
@@ -355,7 +362,6 @@ renderer::create_pso( )
     colour_blend_state_info.blendConstants[2] = 0.0f;
     colour_blend_state_info.blendConstants[3] = 0.0f;
 
-    /*
     vk::DynamicState dynamic_state[] =
     {
         vk::DynamicState::eViewport
@@ -364,7 +370,6 @@ renderer::create_pso( )
     vk::PipelineDynamicStateCreateInfo dynamic_state_info;
     dynamic_state_info.dynamicStateCount = 1;
     dynamic_state_info.pDynamicStates = dynamic_state;
-    */
 
     VkPipelineLayoutCreateInfo pipeline_layout_info = {};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -413,6 +418,7 @@ renderer::create_shader_module( const std::string &shader_code )
 
     return shader;
 }
+*/
 
 void
 renderer::record_commands( )
@@ -439,7 +445,7 @@ renderer::record_commands( )
 
             vkCmdBeginRenderPass( command_buffer_handles_[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE );
 
-                vkCmdBindPipeline( command_buffer_handles_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pso_handle_ );
+                vkCmdBindPipeline( command_buffer_handles_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_.get() );
 
                 VkBuffer vertex_buffers[] = { vertex_buffer_handle_ };
                 VkDeviceSize offsets[] = { 0 };

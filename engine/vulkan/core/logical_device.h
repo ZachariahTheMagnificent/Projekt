@@ -66,6 +66,16 @@ namespace vk
             VkFramebuffer* create_frame_buffers( VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info, uint32_t count ) const;
             VkFramebuffer* destroy_frame_buffers( VkFramebuffer* frame_buffer_handles, uint32_t count ) const;
 
+            VkPipelineLayout create_pipeline_layout( VkPipelineLayoutCreateInfo& create_info ) const;
+            VkPipelineLayout destroy_pipeline_layout( VkPipelineLayout& pipeline_layout_handle ) const;
+
+            VkPipelineCache create_pipeline_cache( VkPipelineCacheCreateInfo& create_info ) const;
+            VkPipelineCache destroy_pipeline_cache( VkPipelineCache& pipeline_cache_handle ) const;
+
+            VkPipeline create_compute_pipeline( VkPipelineCache pipeline_cache_handle, VkComputePipelineCreateInfo& create_info ) const;
+            VkPipeline create_graphics_pipeline( VkPipelineCache pipeline_cache_handle, VkGraphicsPipelineCreateInfo& create_info ) const;
+            VkPipeline destroy_pipeline( VkPipeline pipeline_handle ) const;
+
             VkShaderModule create_shader_module( VkShaderModuleCreateInfo& create_info ) const;
             VkShaderModule destroy_shader_module( VkShaderModule& shader_module_handle ) const;
 

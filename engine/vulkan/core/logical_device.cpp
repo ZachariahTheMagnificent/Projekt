@@ -369,5 +369,83 @@ namespace vk
 
             return VK_NULL_HANDLE;
         }
+
+        VkPipelineLayout
+        logical_device::create_pipeline_layout( VkPipelineLayoutCreateInfo& create_info ) const
+        {
+            VkPipelineLayout pipeline_layout_handle;
+
+            if( vkCreatePipelineLayout( device_handle_, &create_info, nullptr, &pipeline_layout_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Pipeline Layout." << std::endl;
+            else
+                std::cout << "Pipeline Layout create successfully." << std::endl;
+
+            return pipeline_layout_handle;
+        }
+        VkPipelineLayout
+        logical_device::destroy_pipeline_layout( VkPipelineLayout& pipeline_layout_handle ) const
+        {
+            vkDestroyPipelineLayout( device_handle_, pipeline_layout_handle, nullptr );
+
+            std::cout << "Pipeline Layout destroyed." << std::endl;
+
+            return VK_NULL_HANDLE;
+        }
+
+        VkPipelineCache
+        logical_device::create_pipeline_cache( VkPipelineCacheCreateInfo& create_info ) const
+        {
+            VkPipelineCache pipeline_cache_handle;
+
+            if( vkCreatePipelineCache( device_handle_, &create_info, nullptr, &pipeline_cache_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Pipeline Cache." << std::endl;
+            else
+                std::cout << "Pipeline Cache created successfully." << std::endl;
+
+            return pipeline_cache_handle;
+        }
+        VkPipelineCache
+        logical_device::destroy_pipeline_cache( VkPipelineCache& pipeline_cache_handle ) const
+        {
+            vkDestroyPipelineCache( device_handle_, pipeline_cache_handle, nullptr );
+
+            std::cout << "Pipeline Cache destroyed." << std::endl;
+
+            return VK_NULL_HANDLE;
+        }
+
+        VkPipeline
+        logical_device::create_compute_pipeline( VkPipelineCache pipeline_cache_handle, VkComputePipelineCreateInfo& create_info ) const
+        {
+            VkPipeline pipeline_handle;
+
+            if( vkCreateComputePipelines( device_handle_, pipeline_cache_handle, 1, &create_info, nullptr, &pipeline_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Compute Pipeline." << std::endl;
+            else
+                std::cout << "Compute Pipeline created successfully." << std::endl;
+
+            return pipeline_handle;
+        }
+        VkPipeline
+        logical_device::create_graphics_pipeline( VkPipelineCache pipeline_cache_handle, VkGraphicsPipelineCreateInfo& create_info ) const
+        {
+            VkPipeline pipeline_handle;
+
+            if( vkCreateGraphicsPipelines( device_handle_, pipeline_cache_handle, 1, &create_info, nullptr, &pipeline_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Graphics Pipeline." << std::endl;
+            else
+                std::cout << "Graphics Pipeline created successfully." << std::endl;
+
+            return pipeline_handle;
+        }
+        VkPipeline
+        logical_device::destroy_pipeline( VkPipeline pipeline_handle ) const
+        {
+            vkDestroyPipeline( device_handle_, pipeline_handle, nullptr );
+
+            std::cout << "Pipeline destroyed." << std::endl;
+
+            return VK_NULL_HANDLE;
+        }
     }
 }

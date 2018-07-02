@@ -7,7 +7,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vertex.h"
 #include "../window/window.h"
 #include "../vulkan/core/instance.h"
 #include "../vulkan/core/debug_report.h"
@@ -18,6 +17,8 @@
 #include "../vulkan/core/queue.h"
 #include "../vulkan/graphics/swapchain.h"
 #include "../vulkan/core/render_pass.h"
+#include "../vulkan/graphics/vertex.h"
+#include "../vulkan/graphics/graphics_pipeline.h"
 
 class renderer
 {
@@ -49,8 +50,10 @@ private:
     std::vector<VkFramebuffer>      create_framebuffers();
     std::vector<VkCommandBuffer>    create_command_buffers();
 
+    /*
     void                            create_pso();
     VkShaderModule                  create_shader_module( const std::string& shader_code );
+     */
 
     void record_commands();
 
@@ -79,29 +82,35 @@ private:
 private:
     const window& window_;
 
-    vk::core::instance          instance_;
-    vk::core::debug_report      debug_report_;
-    vk::graphics::surface       surface_;
-    vk::core::physical_device   gpu_;
-    vk::core::logical_device    logical_device_;
-    vk::core::queue             graphics_queue_;
-    vk::core::queue             present_queue_;
-    vk::core::command_pool      command_pool_;
+    vk::core::instance              instance_;
+    vk::core::debug_report          debug_report_;
+    vk::graphics::surface           surface_;
+    vk::core::physical_device       gpu_;
+    vk::core::logical_device        logical_device_;
+    vk::core::queue                 graphics_queue_;
+    vk::core::queue                 present_queue_;
+    vk::core::command_pool          command_pool_;
 
     std::vector<VkSemaphore>        image_available_semaphore_handles_;
     std::vector<VkSemaphore>        render_finished_semaphore_handles_;
     std::vector<VkFence>            fences_;
 
-    vk::graphics::swapchain     swapchain_;
-    vk::core::render_pass       render_pass_;
+    vk::graphics::swapchain         swapchain_;
+    vk::core::render_pass           render_pass_;
+    vk::graphics::graphics_pipeline graphics_pipeline_;
+
+    // TODO: put them somewhere else.
+    vk::core::shader_module         vertex_shader_;
+    vk::core::shader_module         fragment_shader_;
 
     std::vector<VkFramebuffer>     swapchain_framebuffer_handles_;
 
     std::vector<VkCommandBuffer>    command_buffer_handles_;
 
+    /*
     VkPipeline                      pso_handle_                         = VK_NULL_HANDLE;
     VkPipelineLayout                pso_layout_handle_                  = VK_NULL_HANDLE;
-
+    */
     VkBuffer                        vertex_buffer_handle_               = VK_NULL_HANDLE;
     VkDeviceMemory                  vertex_buffer_memory_handle_        = VK_NULL_HANDLE;
 
@@ -110,7 +119,7 @@ private:
 
     size_t current_frame = 0;
 
-    const std::vector<vertex> vertices = {
+    const std::vector<vk::graphics::vertex> vertices = {
             { { -0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
             { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
             { {  0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
