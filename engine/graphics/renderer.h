@@ -19,18 +19,13 @@
 #include "../vulkan/core/render_pass.h"
 #include "../vulkan/graphics/vertex.h"
 #include "../vulkan/graphics/graphics_pipeline.h"
+#include "../vulkan/graphics/frame_buffers.h"
+#include "../vulkan/core/command_buffers.h"
+#include "../vulkan/core/fences.h"
+#include "../vulkan/core/semaphores.h"
 
 class renderer
 {
-private:
-    struct SwapchainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR capabilities;
-
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> present_modes;
-    };
-
 public:
     explicit renderer( const window& window );
     ~renderer();
@@ -38,23 +33,8 @@ public:
     void draw_frame();
 
     void recreate_swapchain();
-    void cleanup_swapchain();
 
 private:
-    VkSemaphore                     create_semaphore() const;
-    VkFence                         create_fence() const;
-
-    std::vector<VkSemaphore>        create_semaphores() const;
-    std::vector<VkFence>            create_fences() const;
-
-    std::vector<VkFramebuffer>      create_framebuffers();
-    std::vector<VkCommandBuffer>    create_command_buffers();
-
-    /*
-    void                            create_pso();
-    VkShaderModule                  create_shader_module( const std::string& shader_code );
-     */
-
     void record_commands();
 
     void create_buffer( VkDeviceSize& size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -63,13 +43,6 @@ private:
     void create_vertex_buffer();
     void create_index_buffer();
     uint32_t find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties );
-
-
-    VkSurfaceFormatKHR choose_surface_format( const std::vector<VkSurfaceFormatKHR>& available_formats ) const;
-    VkPresentModeKHR  choose_present_mode( const std::vector<VkPresentModeKHR>& available_present_modes ) const;
-    VkExtent2D choose_extent( VkSurfaceCapabilitiesKHR& capabilities ) const;
-
-    SwapchainSupportDetails query_swapchain_support( VkPhysicalDevice &gpu_handle ) const;
 
 private:
     const std::vector<const char*> validation_layers = {
@@ -91,26 +64,22 @@ private:
     vk::core::queue                 present_queue_;
     vk::core::command_pool          command_pool_;
 
-    std::vector<VkSemaphore>        image_available_semaphore_handles_;
-    std::vector<VkSemaphore>        render_finished_semaphore_handles_;
-    std::vector<VkFence>            fences_;
+    vk::core::semaphores            image_available_semaphores_;
+    vk::core::semaphores            render_finished_semaphores_;
+    vk::core::fences                fences_;
 
     vk::graphics::swapchain         swapchain_;
     vk::core::render_pass           render_pass_;
     vk::graphics::graphics_pipeline graphics_pipeline_;
 
+    vk::graphics::frame_buffers     frame_buffers_;
+    vk::core::command_buffers       command_buffers_;
+
     // TODO: put them somewhere else.
     vk::core::shader_module         vertex_shader_;
     vk::core::shader_module         fragment_shader_;
 
-    std::vector<VkFramebuffer>     swapchain_framebuffer_handles_;
 
-    std::vector<VkCommandBuffer>    command_buffer_handles_;
-
-    /*
-    VkPipeline                      pso_handle_                         = VK_NULL_HANDLE;
-    VkPipelineLayout                pso_layout_handle_                  = VK_NULL_HANDLE;
-    */
     VkBuffer                        vertex_buffer_handle_               = VK_NULL_HANDLE;
     VkDeviceMemory                  vertex_buffer_memory_handle_        = VK_NULL_HANDLE;
 

@@ -37,16 +37,14 @@ namespace vk
             VkCommandPool create_command_pool( VkCommandPoolCreateInfo& create_info ) const;
             VkCommandPool destroy_command_pool( VkCommandPool& command_pool_handle ) const;
 
-            VkCommandBuffer allocate_command_buffer( VkCommandBufferAllocateInfo& allocate_info ) const;
-            VkCommandBuffer free_command_buffer( const VkCommandPool& command_pool_handle, VkCommandBuffer& command_buffer_handle ) const;
-            std::vector<VkCommandBuffer> allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t number ) const;
-            std::vector<VkCommandBuffer> free_command_buffers( const VkCommandPool& command_pool_handle, std::vector<VkCommandBuffer>& command_buffer_handles ) const;
+            VkCommandBuffer* allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t count ) const;
+            VkCommandBuffer* free_command_buffers( const VkCommandPool& command_pool_handle, VkCommandBuffer* command_buffer_handles, uint32_t count ) const;
 
-            VkSemaphore create_semaphore( VkSemaphoreCreateInfo& create_info ) const;
-            VkSemaphore destroy_semaphore( VkSemaphore& semaphore_handle ) const;
+            VkSemaphore* create_semaphores( VkSemaphoreCreateInfo& create_info, uint32_t count ) const;
+            VkSemaphore* destroy_semaphores( VkSemaphore* semaphore_handles, uint32_t count ) const;
 
-            VkFence create_fence( VkFenceCreateInfo& create_info ) const;
-            VkFence destroy_fence( VkFence& fence_handle ) const;
+            VkFence* create_fences( VkFenceCreateInfo& create_info, uint32_t count ) const;
+            VkFence* destroy_fences( VkFence* fence_handle, uint32_t count ) const;
 
             void wait_for_fences( VkFence* p_fence_handle, uint32_t fence_count, VkBool32 wait_all, uint64_t timeout ) const;
             void reset_fences( VkFence* p_fence_handle, uint32_t fence_count ) const;
@@ -63,7 +61,7 @@ namespace vk
             VkRenderPass create_render_pass( VkRenderPassCreateInfo& create_info ) const;
             VkRenderPass destroy_render_pass( VkRenderPass& render_pass_handle ) const;
 
-            VkFramebuffer* create_frame_buffers( VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info, uint32_t count ) const;
+            VkFramebuffer* create_frame_buffers( const VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info, uint32_t count ) const;
             VkFramebuffer* destroy_frame_buffers( VkFramebuffer* frame_buffer_handles, uint32_t count ) const;
 
             VkPipelineLayout create_pipeline_layout( VkPipelineLayoutCreateInfo& create_info ) const;

@@ -57,9 +57,11 @@ namespace vk
         instance::~instance( )
         {
             if( instance_handle_ != VK_NULL_HANDLE )
+            {
                 vkDestroyInstance( instance_handle_, nullptr );
 
-            std::cout << "instance destroyed." << std::endl;
+                std::cout << "instance destroyed." << std::endl;
+            }
         }
 
         instance&

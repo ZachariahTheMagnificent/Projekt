@@ -29,7 +29,8 @@ namespace vk
         }
         shader_module::~shader_module( )
         {
-            shader_module_handle_ = p_logical_device_->destroy_shader_module( shader_module_handle_ );
+            if( shader_module_handle_ != VK_NULL_HANDLE )
+                shader_module_handle_ = p_logical_device_->destroy_shader_module( shader_module_handle_ );
         }
 
         VkPipelineShaderStageCreateInfo shader_module::create_shader_stage_info( VkShaderStageFlagBits stage_flag )

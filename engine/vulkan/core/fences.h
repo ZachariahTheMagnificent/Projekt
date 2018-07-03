@@ -15,80 +15,28 @@ namespace vk
 {
     namespace core
     {
-        template<size_t size>
         class fences
         {
         public:
             fences( ) = default;
-            explicit fences( const logical_device* p_logical_device )
-                    :
-                    p_logical_device_( p_logical_device )
-            {
-                VkFenceCreateInfo create_info = {};
-                create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-                create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-                for( auto& fence : fence_handles_ )
-                {
-                    fence = p_logical_device_->create_fence( create_info );
-                }
-            }
+            fences( const logical_device* p_logical_device, uint32_t count );
             fences( const fences& fences ) = delete;
-            fences( fences&& fences ) noexcept
-            {
-                *this = std::move( fences );
-            }
-            ~fences( )
-            {
-                for( auto& fence : fence_handles_ )
-                {
-                    fence = p_logical_device_->destroy_fence( fence );
-                }
-            }
+            fences( fences&& fences ) noexcept;
+            ~fences( );
 
-            void wait_for_fence( size_t fence_index, VkBool32 wait_all, uint64_t timeout )
-            {
-                p_logical_device_->wait_for_fences( &fence_handles_[fence_index], 1, wait_all, timeout );
-            }
-            void wait_for_fences( VkBool32 wait_all, uint64_t timeout )
-            {
-                p_logical_device_->wait_for_fences( fence_handles_, static_cast<uint32_t>( num_elems_ ), wait_all, timeout );
-            }
-
-            void reset_fence( size_t fence_index )
-            {
-                p_logical_device_->reset_fences( &fence_handles_[fence_index], 1 );
-            }
-            void reset_fences()
-            {
-                p_logical_device_->reset_fences( fence_handles_, static_cast<uint32_t>( num_elems_ ) );
-            }
+            void wait_for_fence( size_t fence_index, VkBool32 wait_all, uint64_t timeout );
+            void reset_fence( size_t fence_index );
 
             fences& operator=( const fences& fences ) = delete;
-            fences& operator=( fences&& fences ) noexcept
-            {
-                if( this != &fences )
-                {
-                    for( auto i = 0; i < num_elems_; ++i )
-                    {
-                        if( fence_handles_[i] != VK_NULL_HANDLE )
-                            fence_handles_[i] = p_logical_device_->destroy_fence( fence_handles_[i] );
+            fences& operator=( fences&& fences ) noexcept;
 
-                        fence_handles_[i] = fences.fence_handles_[i];
-                        fences.fence_handles_[i] = VK_NULL_HANDLE;
-
-                        p_logical_device_ = fences.p_logical_device_;
-                    }
-                }
-
-                return *this;
-            }
+            const VkFence& operator[]( size_t i );
 
         private:
             const logical_device* p_logical_device_ = nullptr;
 
-            VkFence fence_handles_[size] = {};
-            size_t num_elems_ = size;
+            VkFence* fence_handles_;
+            uint32_t count_;
         };
     }
 }

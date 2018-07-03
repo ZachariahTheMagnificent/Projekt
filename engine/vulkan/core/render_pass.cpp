@@ -83,7 +83,8 @@ namespace vk
 
         render_pass::~render_pass( )
         {
-            render_pass_handle_ = p_logical_device_->destroy_render_pass( render_pass_handle_ );
+            if( render_pass_handle_ != VK_NULL_HANDLE )
+                render_pass_handle_ = p_logical_device_->destroy_render_pass( render_pass_handle_ );
         }
 
         render_pass& render_pass::operator=( render_pass&& render_pass ) noexcept

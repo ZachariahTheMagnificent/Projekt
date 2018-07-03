@@ -30,30 +30,19 @@ namespace vk
                 command_pool_handle_ = p_logical_device_->destroy_command_pool( command_pool_handle_ );
         }
 
-        VkCommandBuffer
-        command_pool::allocate_command_buffer( VkCommandBufferAllocateInfo& allocate_info ) const
+
+        VkCommandBuffer*
+        command_pool::allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t count ) const
         {
             allocate_info.commandPool = command_pool_handle_;
 
-            return p_logical_device_->allocate_command_buffer( allocate_info );
-        }
-        VkCommandBuffer
-        command_pool::free_command_buffer( VkCommandBuffer& command_buffer_handle ) const
-        {
-            return p_logical_device_->free_command_buffer( command_pool_handle_, command_buffer_handle );
+            return p_logical_device_->allocate_command_buffers( allocate_info, count );
         }
 
-        std::vector<VkCommandBuffer>
-        command_pool::allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t number ) const
+        VkCommandBuffer*
+        command_pool::free_command_buffers( VkCommandBuffer* command_buffer_handles, uint32_t count ) const
         {
-            allocate_info.commandPool = command_pool_handle_;
-
-            return p_logical_device_->allocate_command_buffers( allocate_info, number );
-        }
-        std::vector<VkCommandBuffer>
-        command_pool::free_command_buffers( std::vector<VkCommandBuffer>& command_buffer_handles ) const
-        {
-            return p_logical_device_->free_command_buffers( command_pool_handle_, command_buffer_handles );
+            return p_logical_device_->free_command_buffers( command_pool_handle_, command_buffer_handles, count );
         }
 
         command_pool& command_pool::operator=( command_pool&& command_pool ) noexcept

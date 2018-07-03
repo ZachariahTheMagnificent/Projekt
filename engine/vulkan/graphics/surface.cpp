@@ -22,7 +22,8 @@ namespace vk
         }
         surface::~surface( )
         {
-            surface_handle_ = p_instance_->destroy_surface( surface_handle_ );
+            if( surface_handle_ != VK_NULL_HANDLE )
+                surface_handle_ = p_instance_->destroy_surface( surface_handle_ );
         }
 
         VkBool32

@@ -29,11 +29,8 @@ namespace vk
                 return command_pool_handle_;
             }
 
-            VkCommandBuffer allocate_command_buffer( VkCommandBufferAllocateInfo& allocate_info ) const;
-            VkCommandBuffer free_command_buffer( VkCommandBuffer& command_buffer_handle ) const;
-
-            std::vector<VkCommandBuffer> allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t number ) const;
-            std::vector<VkCommandBuffer> free_command_buffers( std::vector<VkCommandBuffer>& command_buffer_handles ) const;
+            VkCommandBuffer* allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t count ) const;
+            VkCommandBuffer* free_command_buffers( VkCommandBuffer* command_buffer_handles, uint32_t count ) const;
 
             command_pool& operator=( const command_pool& command_pool ) = delete;
             command_pool& operator=( command_pool&& command_pool ) noexcept;

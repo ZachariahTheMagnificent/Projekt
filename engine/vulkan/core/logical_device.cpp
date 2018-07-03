@@ -60,9 +60,12 @@ namespace vk
         }
         logical_device::~logical_device( )
         {
-            vkDestroyDevice( device_handle_, nullptr );
+            if( device_handle_ != VK_NULL_HANDLE )
+            {
+                vkDestroyDevice( device_handle_, nullptr );
 
-            std::cout << "Logical device destroyed." << std::endl;
+                std::cout << "Logical device destroyed." << std::endl;
+            }
         }
 
         logical_device&
@@ -117,95 +120,84 @@ namespace vk
             return VK_NULL_HANDLE;
         }
 
-
-        VkCommandBuffer
-        logical_device::allocate_command_buffer( VkCommandBufferAllocateInfo& allocate_info ) const
+        VkCommandBuffer*
+        logical_device::allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t count ) const
         {
-            VkCommandBuffer command_buffer_handle;
+            auto* command_buffer_handles = new VkCommandBuffer[count];
 
-            if( vkAllocateCommandBuffers( device_handle_, &allocate_info, &command_buffer_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to allocate Command Buffer." << std::endl;
-            else
-                std::cout << "Command Buffer allocated successfully." << std::endl;
-
-            return nullptr;
-        }
-        VkCommandBuffer
-        logical_device::free_command_buffer( const VkCommandPool& command_pool_handle,
-                                                            VkCommandBuffer& command_buffer_handle ) const
-        {
-            vkFreeCommandBuffers( device_handle_, command_pool_handle, 1, &command_buffer_handle );
-
-            return VK_NULL_HANDLE;
-        }
-        std::vector<VkCommandBuffer>
-        logical_device::allocate_command_buffers( VkCommandBufferAllocateInfo& allocate_info, uint32_t number ) const
-        {
-            std::vector<VkCommandBuffer> command_buffers( number );
-
-            if( vkAllocateCommandBuffers( device_handle_, &allocate_info, command_buffers.data() ) != VK_SUCCESS )
+            if( vkAllocateCommandBuffers( device_handle_, &allocate_info, command_buffer_handles ) != VK_SUCCESS )
                 std::cerr << "Failed to allocate Command Buffers." << std::endl;
             else
                 std::cout << "Command Buffers allocated successfully." << std::endl;
 
-            return command_buffers;
+            return command_buffer_handles;
         }
-        std::vector<VkCommandBuffer>
-        logical_device::free_command_buffers( const VkCommandPool& command_pool_handle, std::vector<VkCommandBuffer>& command_buffer_handles ) const
+        VkCommandBuffer*
+        logical_device::free_command_buffers( const VkCommandPool& command_pool_handle,
+                                                               VkCommandBuffer* command_buffer_handles,
+                                                               uint32_t count ) const
         {
-            vkFreeCommandBuffers( device_handle_, command_pool_handle,
-                                  static_cast<uint32_t>( command_buffer_handles.size() ),
-                                  command_buffer_handles.data() );
+            vkFreeCommandBuffers( device_handle_, command_pool_handle, count, command_buffer_handles );
 
             std::cout << "Command Buffers freed." << std::endl;
 
-            return std::vector<VkCommandBuffer>( );
+            return nullptr;
         }
 
-        VkSemaphore
-        logical_device::create_semaphore( VkSemaphoreCreateInfo& create_info ) const
+        VkSemaphore*
+        logical_device::create_semaphores( VkSemaphoreCreateInfo& create_info, uint32_t count ) const
         {
-            VkSemaphore semaphore_handle = VK_NULL_HANDLE;
+            auto* semaphore_handles = new VkSemaphore[count];
 
-            if( vkCreateSemaphore( device_handle_, &create_info, nullptr, &semaphore_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create semaphore" << std::endl;
-            else
-                std::cout << "Semaphore created successfully." << std::endl;
+            for( auto i = 0; i < count; ++i )
+            {
+                if( vkCreateSemaphore( device_handle_, &create_info, nullptr, &semaphore_handles[i] ) != VK_SUCCESS )
+                    std::cerr << "Failed to create semaphore." << std::endl;
+                else
+                    std::cout << "Semaphore created successfully." << std::endl;
+            }
 
-            return semaphore_handle;
+            return semaphore_handles;
+        }
+        VkSemaphore*
+        logical_device::destroy_semaphores( VkSemaphore* semaphore_handles, uint32_t count ) const
+        {
+            for( auto i = 0; i < count; ++i )
+            {
+                vkDestroySemaphore( device_handle_, semaphore_handles[i], nullptr );
+
+                std::cout << "Semaphore destroyed." << std::endl;
+            }
+
+            return nullptr;
         }
 
-        VkSemaphore
-        logical_device::destroy_semaphore( VkSemaphore& semaphore_handle ) const
+        VkFence*
+        logical_device::create_fences( VkFenceCreateInfo& create_info, uint32_t count ) const
         {
-            vkDestroySemaphore( device_handle_, semaphore_handle, nullptr );
+            auto* fence_handles = new VkFence[count];
 
-            std::cout << "Semaphore destroyed." << std::endl;
+            for( auto i = 0; i < count; ++i )
+            {
+                if( vkCreateFence( device_handle_, &create_info, nullptr, &fence_handles[i] ) != VK_SUCCESS )
+                    std::cerr << "Failed to create fence." << std::endl;
+                else
+                    std::cout << "Fence create successfully." << std::endl;
+            }
 
-            return VK_NULL_HANDLE;
+            return fence_handles;
         }
-
-        VkFence
-        logical_device::create_fence( VkFenceCreateInfo& create_info ) const
+        VkFence*
+        logical_device::destroy_fences( VkFence* fence_handle, uint32_t count ) const
         {
-            VkFence fence_handle;
+            for( auto i = 0; i < count; ++i )
+            {
+                vkDestroyFence( device_handle_, fence_handle[i], nullptr );
 
-            if( vkCreateFence( device_handle_, &create_info, nullptr, &fence_handle ) != VK_NULL_HANDLE )
-                std::cerr << "Failed to create fence." << std::endl;
-            else
-                std::cout << "Fence create successfully." << std::endl;
+                std::cout << "Fence destroyed." << std::endl;
+            }
 
-            return fence_handle;
-        }
-
-        VkFence
-        logical_device::destroy_fence( VkFence& fence_handle ) const
-        {
-            vkDestroyFence( device_handle_, fence_handle, nullptr );
-
-            std::cout << "Fence destroyed." << std::endl;
-
-            return VK_NULL_HANDLE;
+            return nullptr;
         }
 
         void
@@ -213,7 +205,6 @@ namespace vk
         {
             vkWaitForFences( device_handle_, fence_count, p_fence_handle, wait_all, timeout );
         }
-
         void
         logical_device::reset_fences( VkFence* p_fence_handle, uint32_t fence_count ) const
         {
@@ -312,7 +303,7 @@ namespace vk
         }
 
         VkFramebuffer*
-        logical_device::create_frame_buffers( VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info,
+        logical_device::create_frame_buffers( const VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info,
                                               uint32_t count ) const
         {
             VkFramebuffer* frame_buffer_handles = new VkFramebuffer[count];
@@ -328,9 +319,9 @@ namespace vk
                 create_info.pAttachments = attachments;
 
                 if( vkCreateFramebuffer( device_handle_, &create_info, nullptr, &frame_buffer_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create Frame Buffer" << std::endl;
+                    std::cerr << "Failed to create Frame Buffer." << std::endl;
                 else
-                    std::cout << "Frame Buffer created successfully" << std::endl;
+                    std::cout << "Frame Buffer created successfully." << std::endl;
             }
 
             return frame_buffer_handles;
@@ -341,6 +332,10 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 vkDestroyFramebuffer( device_handle_, frame_buffer_handles[i], nullptr );
+
+                frame_buffer_handles[i] = VK_NULL_HANDLE;
+
+                std::cout << "Frame Buffer destroyed." << std::endl;
             }
 
             delete[] frame_buffer_handles;

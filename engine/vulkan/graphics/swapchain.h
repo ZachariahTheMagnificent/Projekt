@@ -33,6 +33,11 @@ namespace vk
                 return image_view_handles_[i];
             }
 
+            const VkImageView* get_image_views() const
+            {
+                return image_view_handles_;
+            }
+
             uint32_t get_count()
             {
                 return image_count_;

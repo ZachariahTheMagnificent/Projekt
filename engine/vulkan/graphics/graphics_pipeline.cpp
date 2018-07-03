@@ -137,8 +137,11 @@ namespace vk
         }
         graphics_pipeline::~graphics_pipeline( )
         {
-            pipeline_handle_ = p_logical_device_->destroy_pipeline( pipeline_handle_ );
-            pipeline_layout_handle_ = p_logical_device_->destroy_pipeline_layout( pipeline_layout_handle_ );
+            if( pipeline_handle_ != VK_NULL_HANDLE )
+                pipeline_handle_ = p_logical_device_->destroy_pipeline( pipeline_handle_ );
+
+            if( pipeline_layout_handle_ != VK_NULL_HANDLE )
+                pipeline_layout_handle_ = p_logical_device_->destroy_pipeline_layout( pipeline_layout_handle_ );
         }
 
         graphics_pipeline&
