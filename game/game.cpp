@@ -12,9 +12,8 @@ game::game( window& window )
     window_( window ),
     renderer_( window_ )
 {
-
+    renderer_.prepare_for_rendering( vertices, indices_ );
 }
-
 game::~game( )
 {
 
@@ -63,5 +62,6 @@ game::update( float delta_time )
 void
 game::render( )
 {
-    renderer_.draw_frame();
+    renderer_.prepare_frame( );
+    renderer_.submit_frame( );
 }

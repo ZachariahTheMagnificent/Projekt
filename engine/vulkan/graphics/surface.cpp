@@ -10,8 +10,6 @@ namespace vk
     {
         surface::surface( const core::instance* p_instance, const window& window )
             :
-            width_( window.get_width() ),
-            height_( window.get_height() ),
             p_instance_( p_instance )
         {
             surface_handle_ = p_instance_->create_surface( window );
@@ -76,16 +74,6 @@ namespace vk
             }
 
             return present_modes;
-        }
-
-        const uint32_t surface::get_width( ) const noexcept
-        {
-            return width_;
-        }
-
-        const uint32_t surface::get_height( ) const noexcept
-        {
-            return height_;
         }
 
         surface&

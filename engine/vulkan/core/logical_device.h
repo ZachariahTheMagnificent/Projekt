@@ -29,6 +29,8 @@ namespace vk
                 return device_handle_;
             }
 
+            void wait_idle();
+
             logical_device& operator=( const logical_device& logical_device ) = delete;
             logical_device& operator=( logical_device&& logical_device ) noexcept;
 
@@ -72,10 +74,23 @@ namespace vk
 
             VkPipeline create_compute_pipeline( VkPipelineCache pipeline_cache_handle, VkComputePipelineCreateInfo& create_info ) const;
             VkPipeline create_graphics_pipeline( VkPipelineCache pipeline_cache_handle, VkGraphicsPipelineCreateInfo& create_info ) const;
-            VkPipeline destroy_pipeline( VkPipeline pipeline_handle ) const;
+            VkPipeline destroy_pipeline( VkPipeline& pipeline_handle ) const;
 
             VkShaderModule create_shader_module( VkShaderModuleCreateInfo& create_info ) const;
             VkShaderModule destroy_shader_module( VkShaderModule& shader_module_handle ) const;
+
+            VkBuffer create_buffer( VkBufferCreateInfo& create_info ) const;
+            VkBuffer destroy_buffer( VkBuffer& buffer_handle ) const;
+
+            VkMemoryRequirements get_buffer_memory_requirements( VkBuffer& buffer_handle ) const;
+
+            VkDeviceMemory allocate_memory( VkMemoryAllocateInfo& allocate_info ) const;
+            VkDeviceMemory free_memory( VkDeviceMemory& memory_handle ) const;
+
+            void bind_buffer_memory( VkBuffer& buffer_handle, VkDeviceMemory& memory_handle, VkDeviceSize& offset ) const;
+
+            void map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size, VkMemoryMapFlags& flags, void **pp_data ) const;
+            void unmap_memory( VkDeviceMemory& memory_handle ) const;
 
         private:
             VkDevice device_handle_ = VK_NULL_HANDLE;

@@ -93,16 +93,15 @@ namespace vk
             colour_blend_state_info.blendConstants[2] = 0.0f;
             colour_blend_state_info.blendConstants[3] = 0.0f;
 
-            /*
-            vk::DynamicState dynamic_state[] =
+            VkDynamicState dynamic_state[] =
             {
-                vk::DynamicState::eViewport
+                VK_DYNAMIC_STATE_VIEWPORT
             };
 
-            vk::PipelineDynamicStateCreateInfo dynamic_state_info;
+            VkPipelineDynamicStateCreateInfo dynamic_state_info = {};
+            dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
             dynamic_state_info.dynamicStateCount = 1;
             dynamic_state_info.pDynamicStates = dynamic_state;
-             */
 
             VkPipelineLayoutCreateInfo pipeline_layout_info = {};
             pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -124,7 +123,7 @@ namespace vk
             create_info.pMultisampleState = &multisample_state_info;
             create_info.pDepthStencilState = nullptr;
             create_info.pColorBlendState = &colour_blend_state_info;
-            //create_info.pDynamicState = &dynamic_state_info;
+            create_info.pDynamicState = &dynamic_state_info;
             create_info.layout = pipeline_layout_handle_;
             create_info.renderPass = render_pass.get();
             create_info.subpass = 0;

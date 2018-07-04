@@ -23,26 +23,27 @@
 #include "../vulkan/core/command_buffers.h"
 #include "../vulkan/core/fences.h"
 #include "../vulkan/core/semaphores.h"
+#include "../vulkan/core/vertex_buffer.h"
+#include "../vulkan/core/index_buffer.h"
 
 class renderer
 {
 public:
-    explicit renderer( const window& window );
+    renderer( const window& window );
     ~renderer();
 
-    void draw_frame();
+    void prepare_frame( );
+    void submit_frame( );
 
-    void recreate_swapchain();
+    void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
+                                const std::vector<std::uint16_t>& indices );
 
 private:
-    void record_commands();
+    void recreate_swapchain( );
+    void record_commands( );
 
-    void create_buffer( VkDeviceSize& size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                        VkBuffer& buffer, VkDeviceMemory& buffer_memory );
-    void copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, VkDeviceSize& size );
-    void create_vertex_buffer();
-    void create_index_buffer();
-    uint32_t find_memory_type( uint32_t type_filter, VkMemoryPropertyFlags properties );
+    void create_vertex_buffer( const std::vector<vk::graphics::vertex>& vertices );
+    void create_index_buffer( const std::vector<std::uint16_t>& indices );
 
 private:
     const std::vector<const char*> validation_layers = {
@@ -79,25 +80,13 @@ private:
     vk::core::shader_module         vertex_shader_;
     vk::core::shader_module         fragment_shader_;
 
+    vk::core::vertex_buffer         vertex_buffer_;
+    vk::core::index_buffer          index_buffer_;
 
-    VkBuffer                        vertex_buffer_handle_               = VK_NULL_HANDLE;
-    VkDeviceMemory                  vertex_buffer_memory_handle_        = VK_NULL_HANDLE;
+    VkViewport viewport_ = {};
 
-    VkBuffer                        index_buffer_handle_                = VK_NULL_HANDLE;
-    VkDeviceMemory                  index_buffer_memory_handle_         = VK_NULL_HANDLE;
-
-    size_t current_frame = 0;
-
-    const std::vector<vk::graphics::vertex> vertices = {
-            { { -0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-            { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { {  0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-            { {  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-    };
-
-    const std::vector<std::uint16_t> indices_ = {
-            0, 1, 3, 1, 2, 3
-    };
+    size_t current_frame_ = 0;
+    uint32_t image_index_ = 0;
 
     struct UniformBufferObject
     {

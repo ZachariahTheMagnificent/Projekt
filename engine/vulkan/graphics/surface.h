@@ -34,16 +34,10 @@ namespace vk
             std::vector<VkSurfaceFormatKHR> get_format( const VkPhysicalDevice& physical_device_handle ) const noexcept;
             std::vector<VkPresentModeKHR> get_present_mode( const VkPhysicalDevice& physical_device_handle ) const noexcept;
 
-            const uint32_t get_width() const noexcept;
-            const uint32_t get_height() const noexcept;
-
             surface& operator=( const surface& surface ) = delete;
             surface& operator=( surface&& surface ) noexcept;
 
         private:
-            uint32_t width_;
-            uint32_t height_;
-
             const core::instance* p_instance_;
 
             VkSurfaceKHR surface_handle_ = VK_NULL_HANDLE;

@@ -32,7 +32,7 @@ namespace vk
         private:
             const logical_device* p_logical_device_ = nullptr;
 
-            VkSemaphore* semaphore_handles_;
+            VkSemaphore* semaphore_handles_ = VK_NULL_HANDLE;
             uint32_t count_;
         };
     }

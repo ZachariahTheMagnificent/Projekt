@@ -11,7 +11,7 @@ namespace vk
 {
     namespace core
     {
-        instance::instance( const std::string &name, const std::vector<const char*>& validation_layers, std::vector<const char*>& extensions )
+        instance::instance( const std::string &name, const std::vector<const char*>& validation_layers, std::vector<const char*> extensions )
         {
             if( enable_validation_layers && !check_validation_layer_support( validation_layers ) )
                 std::cerr << "Validation layers requested, but not available" << std::endl;

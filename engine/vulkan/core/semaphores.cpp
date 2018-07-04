@@ -35,6 +35,9 @@ namespace vk
         {
             if( this != &semaphores )
             {
+                if( semaphore_handles_ != VK_NULL_HANDLE )
+                    semaphore_handles_ = p_logical_device_->destroy_semaphores( semaphore_handles_, count_ );
+
                 count_ = semaphores.count_;
                 semaphores.count_;
 

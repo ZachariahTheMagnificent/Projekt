@@ -46,6 +46,10 @@ private:
     void set_up();
 
 private:
+    void set_window_resize_callback( GLFWwindowsizefun window_resize_callback );
+    void set_window_position_callback( GLFWwindowposfun window_position_callback );
+
+private:
     std::uint32_t x_pos_    = 50;
     std::uint32_t y_pos_    = 50;
     std::uint32_t width_    = 0;

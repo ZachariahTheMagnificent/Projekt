@@ -38,6 +38,9 @@ namespace vk
         {
             if( this != &frame_buffers )
             {
+                if( frame_buffer_handles_ != VK_NULL_HANDLE )
+                    frame_buffer_handles_ = p_logical_device_->destroy_frame_buffers( frame_buffer_handles_, count_ );
+
                 count_ = frame_buffers.count_;
                 frame_buffers.count_ = 0;
 

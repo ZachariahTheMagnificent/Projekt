@@ -52,6 +52,8 @@ namespace vk
 
             VkDevice create_device( VkDeviceCreateInfo& create_info );
 
+            VkPhysicalDeviceMemoryProperties get_memory_properties( ) const;
+
         private:
             bool is_device_suitable( const graphics::surface& surface, VkPhysicalDevice& physical_device_handle ) noexcept;
             bool is_device_suitable_for_compute( VkPhysicalDevice &physical_device_handle ) noexcept;

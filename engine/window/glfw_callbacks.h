@@ -1,0 +1,10 @@
+/*!
+ *
+ */
+
+#ifndef PROJEKT_GLFW_CALLBACKS_H
+#define PROJEKT_GLFW_CALLBACKS_H
+
+
+
+#endif //PROJEKT_GLFW_CALLBACKS_H

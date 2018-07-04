@@ -220,5 +220,14 @@ namespace vk
 
             return swapchain_support_details;
         }
+
+        VkPhysicalDeviceMemoryProperties physical_device::get_memory_properties( ) const
+        {
+            VkPhysicalDeviceMemoryProperties mem_properties;
+
+            vkGetPhysicalDeviceMemoryProperties( physical_device_handle_, &mem_properties );
+
+            return mem_properties;
+        }
     }
 }

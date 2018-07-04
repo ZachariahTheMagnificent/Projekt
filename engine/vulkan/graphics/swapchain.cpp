@@ -8,7 +8,8 @@ namespace vk
 {
     namespace graphics
     {
-        swapchain::swapchain( const core::logical_device* p_logical_device, const core::physical_device& physical_device, const surface& surface )
+        swapchain::swapchain( const core::logical_device* p_logical_device, const core::physical_device& physical_device,
+                              const surface& surface, uint32_t width, uint32_t height, VkSwapchainKHR old_swapchain_handle )
             :
             p_logical_device_( p_logical_device )
         {
@@ -16,7 +17,7 @@ namespace vk
 
             auto surface_format = choose_surface_format( support_details.formats );
             auto present_mode = choose_present_mode( support_details.present_modes );
-            auto extent = choose_extent_2d( support_details.capabilities, surface );
+            auto extent = choose_extent_2d( support_details.capabilities, width, height );
 
             uint32_t image_count = support_details.capabilities.minImageCount + 1;
             if( support_details.capabilities.maxImageCount > 0 &&
@@ -64,8 +65,7 @@ namespace vk
             format_ = surface_format.format;
             extent_ = extent;
 
-            // TODO: Add support for previous swapchain.
-            create_info.oldSwapchain = VK_NULL_HANDLE;
+            create_info.oldSwapchain = old_swapchain_handle;
 
             VkImageViewCreateInfo image_view_create_info = {};
             image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -110,6 +110,9 @@ namespace vk
                 if( swapchain_handle_ != VK_NULL_HANDLE )
                     swapchain_handle_ = p_logical_device_->destroy_swapchain( swapchain_handle_ );
 
+                if( image_view_handles_ != VK_NULL_HANDLE )
+                    image_view_handles_ = p_logical_device_->destroy_image_views( image_view_handles_, image_count_ );
+
                 swapchain_handle_ = swapchain.swapchain_handle_;
                 swapchain.swapchain_handle_ = VK_NULL_HANDLE;
 
@@ -132,7 +135,7 @@ namespace vk
         }
 
         VkExtent2D
-        swapchain::choose_extent_2d( VkSurfaceCapabilitiesKHR& capabilities, const surface& surface ) const
+        swapchain::choose_extent_2d( VkSurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height ) const
         {
             if( capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() )
             {
@@ -140,7 +143,7 @@ namespace vk
             }
             else
             {
-                VkExtent2D actual_extent = { surface.get_width(), surface.get_height() };
+                VkExtent2D actual_extent = { width, height };
 
                 actual_extent.width = std::max( capabilities.minImageExtent.width,
                                                 std::min( capabilities.minImageExtent.width, actual_extent.width ) );

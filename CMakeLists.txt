@@ -46,6 +46,6 @@ add_executable( Projekt main.cpp
 
         game/game.h
         game/game.cpp
-        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp engine/vulkan/core/compute_pipeline.h engine/vulkan/core/compute_pipeline.cpp engine/vulkan/graphics/graphics_pipeline.h engine/vulkan/graphics/graphics_pipeline.cpp engine/vulkan/graphics/vertex.h engine/vulkan/graphics/frame_buffers.cpp engine/vulkan/core/command_buffers.cpp engine/vulkan/core/fences.cpp engine/vulkan/core/semaphores.cpp)
+        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp engine/vulkan/core/compute_pipeline.h engine/vulkan/core/compute_pipeline.cpp engine/vulkan/graphics/graphics_pipeline.h engine/vulkan/graphics/graphics_pipeline.cpp engine/vulkan/graphics/vertex.h engine/vulkan/graphics/frame_buffers.cpp engine/vulkan/core/command_buffers.cpp engine/vulkan/core/fences.cpp engine/vulkan/core/semaphores.cpp engine/window/glfw_callbacks.h engine/vulkan/core/vertex_buffer.h engine/vulkan/core/vertex_buffer.cpp engine/vulkan/core/index_buffer.h engine/vulkan/core/index_buffer.cpp)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

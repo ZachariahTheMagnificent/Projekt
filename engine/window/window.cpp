@@ -95,7 +95,7 @@ window::set_up( )
         throw glfw_exception{ "Failed to initialize GLFW!", __FILE__, __LINE__ };
 
     glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
-    glfwWindowHint( GLFW_RESIZABLE, GLFW_FALSE );
+    glfwWindowHint( GLFW_RESIZABLE, GLFW_TRUE );
 
     p_window_ = glfwCreateWindow( width_, height_, title_.c_str(), nullptr, nullptr );
     if( p_window_ == nullptr )
@@ -105,6 +105,8 @@ window::set_up( )
     }
 
     glfwSetWindowPos( p_window_, x_pos_, y_pos_ );
+
+    //set_window_resize_callback( glfw_callbacks::window_size_callback );
 }
 
 VkSurfaceKHR window::create_surface( const VkInstance &instance_handle ) const
@@ -115,4 +117,14 @@ VkSurfaceKHR window::create_surface( const VkInstance &instance_handle ) const
         throw vulkan_exception{ "Failed to create surface", __FILE__, __LINE__ };
 
     return surface;
+}
+
+void window::set_window_resize_callback( GLFWwindowsizefun window_resize_callback )
+{
+    glfwSetWindowSizeCallback( p_window_, window_resize_callback );
+}
+
+void window::set_window_position_callback( GLFWwindowposfun window_position_callback )
+{
+    glfwSetWindowPosCallback( p_window_, window_position_callback );
 }

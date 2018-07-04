@@ -40,7 +40,7 @@ namespace vk
         private:
             const core::logical_device* p_logical_device_;
 
-            VkFramebuffer* frame_buffer_handles_;
+            VkFramebuffer* frame_buffer_handles_ = VK_NULL_HANDLE;
             size_t count_;
         };
     }

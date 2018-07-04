@@ -68,6 +68,11 @@ namespace vk
             }
         }
 
+        void logical_device::wait_idle( )
+        {
+            vkDeviceWaitIdle( device_handle_ );
+        }
+
         logical_device&
         logical_device::operator=( logical_device &&logical_device ) noexcept
         {
@@ -306,7 +311,7 @@ namespace vk
         logical_device::create_frame_buffers( const VkImageView* image_view_handles, VkFramebufferCreateInfo& create_info,
                                               uint32_t count ) const
         {
-            VkFramebuffer* frame_buffer_handles = new VkFramebuffer[count];
+            auto* frame_buffer_handles = new VkFramebuffer[count];
 
             for( auto i = 0; i < count; ++i )
             {
@@ -434,13 +439,84 @@ namespace vk
             return pipeline_handle;
         }
         VkPipeline
-        logical_device::destroy_pipeline( VkPipeline pipeline_handle ) const
+        logical_device::destroy_pipeline( VkPipeline& pipeline_handle ) const
         {
             vkDestroyPipeline( device_handle_, pipeline_handle, nullptr );
 
             std::cout << "Pipeline destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
+        }
+
+        VkBuffer
+        logical_device::create_buffer( VkBufferCreateInfo& create_info ) const
+        {
+            VkBuffer buffer_handle;
+
+            if( vkCreateBuffer( device_handle_, &create_info, nullptr, &buffer_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Buffer." << std::endl;
+            else
+                std::cout << "Buffer created successfully." << std::endl;
+
+            return buffer_handle;
+        }
+        VkBuffer
+        logical_device::destroy_buffer( VkBuffer& buffer_handle ) const
+        {
+            vkDestroyBuffer( device_handle_, buffer_handle, nullptr );
+
+            std::cout << "Buffer destroyed." << std::endl;
+
+            return VK_NULL_HANDLE;
+        }
+
+        VkMemoryRequirements
+        logical_device::get_buffer_memory_requirements( VkBuffer& buffer_handle ) const
+        {
+            VkMemoryRequirements mem_reqs;
+
+            vkGetBufferMemoryRequirements( device_handle_, buffer_handle, &mem_reqs );
+
+            return mem_reqs;
+        }
+
+        VkDeviceMemory
+        logical_device::allocate_memory( VkMemoryAllocateInfo& allocate_info ) const
+        {
+            VkDeviceMemory memory_handle;
+
+            if( vkAllocateMemory( device_handle_, &allocate_info, nullptr, &memory_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to allocate memory." << std::endl;
+            else
+                std::cout << "Memory allocated successfully." << std::endl;
+
+            return memory_handle;
+        }
+        VkDeviceMemory
+        logical_device::free_memory( VkDeviceMemory& memory_handle ) const
+        {
+            vkFreeMemory( device_handle_, memory_handle, nullptr );
+
+            std::cout << "Memory freed." << std::endl;
+
+            return VK_NULL_HANDLE;
+        }
+
+        void logical_device::bind_buffer_memory( VkBuffer& buffer_handle, VkDeviceMemory& memory_handle,
+                                                 VkDeviceSize& offset ) const
+        {
+            vkBindBufferMemory( device_handle_, buffer_handle, memory_handle, offset );
+        }
+
+        void logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size,
+                                         VkMemoryMapFlags& flags, void** pp_data ) const
+        {
+            vkMapMemory( device_handle_, memory_handle, offset, size, flags, pp_data );
+        }
+
+        void logical_device::unmap_memory( VkDeviceMemory& memory_handle ) const
+        {
+            vkUnmapMemory( device_handle_, memory_handle );
         }
     }
 }

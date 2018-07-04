@@ -35,6 +35,9 @@ namespace vk
         {
             if( this != &command_buffers )
             {
+                if( command_buffer_handles_ != VK_NULL_HANDLE )
+                    command_buffer_handles_ = p_command_pool_->free_command_buffers( command_buffer_handles_, count_ );
+
                 count_ = command_buffers.count_;
                 command_buffers.count_ = 0;
 
@@ -79,6 +82,7 @@ namespace vk
         command_buffers::end_render_pass( uint32_t index )
         {
             vkCmdEndRenderPass( command_buffer_handles_[index] );
+
         }
 
         void
@@ -102,6 +106,17 @@ namespace vk
                                             int32_t vertex_offset, uint32_t first_instance, uint32_t index )
         {
             vkCmdDrawIndexed( command_buffer_handles_[index], index_count, instance_count, first_index, vertex_offset, first_instance );
+        }
+
+        void command_buffers::set_viewport( uint32_t first_viewport, uint32_t viewport_count, VkViewport* p_viewports, uint32_t index )
+        {
+            vkCmdSetViewport( command_buffer_handles_[index], first_viewport, viewport_count, p_viewports );
+        }
+
+        void command_buffers::copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, uint32_t region_count,
+                                           const VkBufferCopy* p_regions, uint32_t index )
+        {
+            vkCmdCopyBuffer( command_buffer_handles_[index], src_buffer, dst_buffer, region_count, p_regions );
         }
     }
 }

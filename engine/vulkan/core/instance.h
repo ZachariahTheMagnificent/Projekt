@@ -21,7 +21,7 @@ namespace vk
         {
         public:
             instance() = default;
-            instance( const std::string& name, const std::vector<const char*>& validation_layers, std::vector<const char*>& extensions );
+            instance( const std::string& name, const std::vector<const char*>& validation_layers, std::vector<const char*> extensions );
             instance( const instance& instance ) = delete;
             instance( instance&& instance ) noexcept;
             ~instance( );
