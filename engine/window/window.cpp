@@ -5,9 +5,12 @@
 #include <cassert>
 
 #include "window.h"
+#include "glfw_callbacks.h"
 
 #include "../utils/exception/glfw_exception.h"
 #include "../utils/exception/vulkan_exception.h"
+
+std::queue<event> event_handler::event_queue_;
 
 window::window( std::uint32_t width, std::uint32_t height, const std::string &title )
     :
@@ -43,10 +46,23 @@ window::~window( )
     glfwTerminate( );
 }
 
-void
-window::poll_event( )
+bool
+window::poll_event( event& e )
 {
     glfwPollEvents();
+
+    if( event_handler::pop_event( e ) )
+    {
+        if( e.event_type == event::type::window_resized )
+        {
+            width_ = e.window_resize.width;
+            height_ = e.window_resize.height;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 bool
@@ -106,7 +122,7 @@ window::set_up( )
 
     glfwSetWindowPos( p_window_, x_pos_, y_pos_ );
 
-    //set_window_resize_callback( glfw_callbacks::window_size_callback );
+    set_window_resize_callback( glfw_callbacks::window_size_callback );
 }
 
 VkSurfaceKHR

@@ -17,12 +17,18 @@ add_executable( Projekt main.cpp
         engine/utils/exception/vulkan_exception.h
         engine/utils/file_io/read.h
         engine/utils/file_io/write.h
+        engine/vulkan/core/command_buffers.cpp
         engine/vulkan/core/command_buffers.h
         engine/vulkan/core/command_pool.cpp
         engine/vulkan/core/command_pool.h
+        engine/vulkan/core/compute_pipeline.cpp
+        engine/vulkan/core/compute_pipeline.h
         engine/vulkan/core/debug_report.cpp
         engine/vulkan/core/debug_report.h
+        engine/vulkan/core/fences.cpp
         engine/vulkan/core/fences.h
+        engine/vulkan/core/index_buffer.cpp
+        engine/vulkan/core/index_buffer.h
         engine/vulkan/core/instance.cpp
         engine/vulkan/core/instance.h
         engine/vulkan/core/logical_device.cpp
@@ -31,21 +37,31 @@ add_executable( Projekt main.cpp
         engine/vulkan/core/physical_device.h
         engine/vulkan/core/queue.cpp
         engine/vulkan/core/queue.h
+        engine/vulkan/core/render_pass.cpp
+        engine/vulkan/core/render_pass.h
+        engine/vulkan/core/semaphores.cpp
         engine/vulkan/core/semaphores.h
         engine/vulkan/core/shader_module.cpp
         engine/vulkan/core/shader_module.h
+        engine/vulkan/core/vertex_buffer.cpp
+        engine/vulkan/core/vertex_buffer.h
+        engine/vulkan/graphics/frame_buffers.cpp
         engine/vulkan/graphics/frame_buffers.h
+        engine/vulkan/graphics/graphics_pipeline.cpp
+        engine/vulkan/graphics/graphics_pipeline.h
         engine/vulkan/graphics/surface.cpp
         engine/vulkan/graphics/surface.h
         engine/vulkan/graphics/swapchain.cpp
         engine/vulkan/graphics/swapchain.h
+        engine/vulkan/graphics/vertex.h
         engine/vulkan/helpers/queue_family_indices.h
         engine/vulkan/helpers/swapchain_support_details.h
+        engine/window/glfw_callbacks.h
         engine/window/window.h
         engine/window/window.cpp
 
         game/game.h
         game/game.cpp
-        engine/vulkan/core/render_pass.h engine/vulkan/core/render_pass.cpp engine/vulkan/core/compute_pipeline.h engine/vulkan/core/compute_pipeline.cpp engine/vulkan/graphics/graphics_pipeline.h engine/vulkan/graphics/graphics_pipeline.cpp engine/vulkan/graphics/vertex.h engine/vulkan/graphics/frame_buffers.cpp engine/vulkan/core/command_buffers.cpp engine/vulkan/core/fences.cpp engine/vulkan/core/semaphores.cpp engine/window/glfw_callbacks.h engine/vulkan/core/vertex_buffer.h engine/vulkan/core/vertex_buffer.cpp engine/vulkan/core/index_buffer.h engine/vulkan/core/index_buffer.cpp)
+        engine/window/event/event.h engine/window/event/event_handler.h)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

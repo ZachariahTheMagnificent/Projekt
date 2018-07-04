@@ -92,14 +92,27 @@ namespace vk
                 image_view_handles_ = p_logical_device_->destroy_image_views( image_view_handles_, image_count_ );
 
             if( image_handles_ != VK_NULL_HANDLE )
-                image_handles_      = p_logical_device_->destroy_images( image_handles_ );
+                image_handles_ = p_logical_device_->destroy_images( image_handles_ );
 
             if( swapchain_handle_ != VK_NULL_HANDLE )
-                swapchain_handle_   = p_logical_device_->destroy_swapchain( swapchain_handle_ );
+                swapchain_handle_ = p_logical_device_->destroy_swapchain( swapchain_handle_ );
         }
         swapchain::swapchain( swapchain&& swapchain ) noexcept
         {
             *this = std::move( swapchain );
+        }
+
+        void
+        swapchain::destroy( )
+        {
+            if( image_view_handles_ != VK_NULL_HANDLE )
+                image_view_handles_ = p_logical_device_->destroy_image_views( image_view_handles_, image_count_ );
+
+            if( image_handles_ != VK_NULL_HANDLE )
+                image_handles_ = p_logical_device_->destroy_images( image_handles_ );
+
+            if( swapchain_handle_ != VK_NULL_HANDLE )
+                swapchain_handle_ = p_logical_device_->destroy_swapchain( swapchain_handle_ );
         }
 
         swapchain&

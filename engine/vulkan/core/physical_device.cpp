@@ -230,5 +230,23 @@ namespace vk
 
             return mem_properties;
         }
+
+        void physical_device::check_surface_present_support( const graphics::surface& surface )
+        {
+            uint32_t queue_family_count = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties( physical_device_handle_, &queue_family_count, nullptr );
+
+            std::vector<VkQueueFamilyProperties> queue_family_properties( queue_family_count );
+            vkGetPhysicalDeviceQueueFamilyProperties( physical_device_handle_, &queue_family_count, queue_family_properties.data() );
+
+            int i = 0;
+            for( const auto& queue_family_property : queue_family_properties )
+            {
+                if( surface.get_physical_device_surface_support( physical_device_handle_, i ) == VK_TRUE )
+                    break;
+
+                ++i;
+            }
+        }
     }
 }

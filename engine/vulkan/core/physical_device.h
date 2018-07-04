@@ -54,6 +54,8 @@ namespace vk
 
             VkPhysicalDeviceMemoryProperties get_memory_properties( ) const;
 
+            void check_surface_present_support( const graphics::surface& surface );
+
         private:
             bool is_device_suitable( const graphics::surface& surface, VkPhysicalDevice& physical_device_handle ) noexcept;
             bool is_device_suitable_for_compute( VkPhysicalDevice &physical_device_handle ) noexcept;

@@ -12,6 +12,8 @@
 #include <vulkan/vulkan.h>
 #include <glfw/glfw3.h>
 
+#include "event/event_handler.h"
+
 #ifdef NDEBUG
 static constexpr bool enable_validation_layers = false;
 #else
@@ -30,7 +32,7 @@ public:
     window& operator=( const window& ) = delete;
     window& operator=( window&& ) = delete;
 
-    void poll_event();
+    bool poll_event( event& e );
 
     bool is_open() const;
 

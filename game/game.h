@@ -22,11 +22,9 @@ public:
     void run();
 
 private:
-    void handle_input();
+    void handle_input( event& e );
     void update( float delta_time );
     void render();
-
-    void calculate_fps( float delta_time, uint32_t interval );
 
 private:
     window& window_;

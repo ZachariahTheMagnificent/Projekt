@@ -120,7 +120,7 @@ renderer::record_commands( )
 }
 
 void
-renderer::prepare_frame( )
+renderer::prepare_frame( event& e )
 {
     fences_.wait_for_fence( current_frame_, VK_TRUE, std::numeric_limits<uint64_t>::max() );
     fences_.reset_fence( current_frame_ );
@@ -130,7 +130,23 @@ renderer::prepare_frame( )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR )
     {
-        recreate_swapchain( );
+        if( e.event_type == event::type::window_resized )
+        {
+            logical_device_.wait_idle();
+
+            swapchain_.destroy();
+
+            surface_ = vk::graphics::surface( &instance_, window_ );
+            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
+            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
+            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
+
+            record_commands();
+        }
+        else
+        {
+            recreate_swapchain( );
+        }
     }
     else if( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
     {
@@ -139,7 +155,7 @@ renderer::prepare_frame( )
 }
 
 void
-renderer::submit_frame( )
+renderer::submit_frame( event& e )
 {
     VkSemaphore wait_semaphores[] = { image_available_semaphores_[current_frame_] };
     VkSemaphore signal_semaphores[] = { render_finished_semaphores_[current_frame_] };
@@ -170,7 +186,26 @@ renderer::submit_frame( )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
-        recreate_swapchain( );
+        if( e.event_type == event::type::window_resized )
+        {
+            logical_device_.wait_idle();
+
+            swapchain_.destroy();
+
+            surface_ = vk::graphics::surface( &instance_, window_ );
+
+            gpu_.check_surface_present_support( surface_ );
+
+            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
+            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
+            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
+
+            record_commands();
+        }
+        else
+        {
+            recreate_swapchain( );
+        }
     }
     else if( result != VK_SUCCESS )
     {

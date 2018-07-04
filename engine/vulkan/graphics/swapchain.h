@@ -24,6 +24,8 @@ namespace vk
             swapchain( swapchain&& swapchain ) noexcept;
             ~swapchain( );
 
+            void destroy();
+
             VkSwapchainKHR& get()
             {
                 return swapchain_handle_;

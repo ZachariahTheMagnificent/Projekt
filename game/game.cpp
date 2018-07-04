@@ -27,8 +27,6 @@ game::run( )
 
     while( window_.is_open( ) )
     {
-        window_.poll_event();
-
         float dt;
         {
             const auto new_time_point = std::chrono::steady_clock::now( );
@@ -39,20 +37,23 @@ game::run( )
 
         float fps = ( 1.0f / dt );
 
-        std::cout << fps << "\n";
+        event e;
+        while( window_.poll_event( e ) )
+        {
+            handle_input( e );
+        }
 
-        renderer_.prepare_frame();
+        renderer_.prepare_frame( e );
 
-        handle_input();
         update( dt );
         render( );
 
-        renderer_.submit_frame();
+        renderer_.submit_frame( e );
     }
 }
 
 void
-game::handle_input( )
+game::handle_input( event& e )
 {
 
 }

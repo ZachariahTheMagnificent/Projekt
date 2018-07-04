@@ -32,8 +32,8 @@ public:
     renderer( const window& window );
     ~renderer();
 
-    void prepare_frame( );
-    void submit_frame( );
+    void prepare_frame( event& e );
+    void submit_frame( event& e );
 
     void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
                                 const std::vector<std::uint16_t>& indices );
