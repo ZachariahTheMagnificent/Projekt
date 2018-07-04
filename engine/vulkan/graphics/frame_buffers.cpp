@@ -34,7 +34,8 @@ namespace vk
                 frame_buffer_handles_ = p_logical_device_->destroy_frame_buffers( frame_buffer_handles_, count_ );
         }
 
-        frame_buffers& frame_buffers::operator=( frame_buffers&& frame_buffers ) noexcept
+        frame_buffers&
+        frame_buffers::operator=( frame_buffers&& frame_buffers ) noexcept
         {
             if( this != &frame_buffers )
             {

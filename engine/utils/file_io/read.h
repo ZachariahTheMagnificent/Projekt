@@ -10,7 +10,8 @@
 
 #include "../exception/exception.h"
 
-inline std::string read_from_file( const std::string& filepath )
+inline
+std::string read_from_file( const std::string& filepath )
 {
     std::ifstream file( filepath );
     std::string str;
@@ -29,7 +30,8 @@ inline std::string read_from_file( const std::string& filepath )
     return str;
 }
 
-inline std::string read_from_binary_file( const std::string filepath )
+inline
+std::string read_from_binary_file( const std::string filepath )
 {
     std::ifstream file( filepath , std::ios::binary );
     std::string str;

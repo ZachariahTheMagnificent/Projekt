@@ -60,7 +60,8 @@ namespace vk
                 buffer_memory_handle_ = p_logical_device_->free_memory( buffer_memory_handle_ );
         }
 
-        void index_buffer::create_buffer( const physical_device& physical_device, VkDeviceSize& size,
+        void
+        index_buffer::create_buffer( const physical_device& physical_device, VkDeviceSize& size,
                                           VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer,
                                           VkDeviceMemory& buffer_memory )
         {
@@ -85,7 +86,8 @@ namespace vk
             p_logical_device_->bind_buffer_memory( buffer, buffer_memory, offset );
         }
 
-        void index_buffer::copy_buffer( const command_pool& command_pool, queue& queue, VkBuffer& src_buffer,
+        void
+        index_buffer::copy_buffer( const command_pool& command_pool, queue& queue, VkBuffer& src_buffer,
                                         VkBuffer& dst_buffer, VkDeviceSize& size )
         {
             command_buffers command_buffer( &command_pool, 1 );
@@ -110,7 +112,8 @@ namespace vk
             queue.wait_idle();
         }
 
-        uint32_t index_buffer::find_memory_type( const physical_device& physical_device, uint32_t type_filter,
+        uint32_t
+        index_buffer::find_memory_type( const physical_device& physical_device, uint32_t type_filter,
                                                  VkMemoryPropertyFlags properties )
         {
             VkPhysicalDeviceMemoryProperties mem_properties = physical_device.get_memory_properties();

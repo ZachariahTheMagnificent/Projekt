@@ -70,7 +70,8 @@ namespace vk
             physical_device_features_ = physical_device_features;
         }
 
-        int32_t physical_device::get_queue_family_index( const helpers::queue_family_type& type ) const noexcept
+        int32_t
+        physical_device::get_queue_family_index( const helpers::queue_family_type& type ) const noexcept
         {
             if( type == helpers::queue_family_type::e_graphics )
                 return queue_family_indices_.graphics_family;

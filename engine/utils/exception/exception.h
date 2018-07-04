@@ -18,12 +18,14 @@ public:
         line_( line )
     { }
 
-    const std::string& get_file() const
+    const
+    std::string& get_file() const
     {
         return file_;
     }
 
-    const std::uint64_t get_line() const
+    const
+    std::uint64_t get_line() const
     {
         return line_;
     }

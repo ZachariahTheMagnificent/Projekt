@@ -22,21 +22,25 @@ namespace vk
             *this = std::move( queue );
         }
 
-        void queue::wait_idle( )
+        void
+        queue::wait_idle( )
         {
             vkQueueWaitIdle( queue_handle_ );
         }
-        void queue::submit( VkSubmitInfo& submit_info, VkFence fence_handle )
+        void
+        queue::submit( VkSubmitInfo& submit_info, VkFence fence_handle )
         {
             if( vkQueueSubmit( queue_handle_, 1, &submit_info, fence_handle ) != VK_SUCCESS )
                 throw vulkan_exception{ "Failed to submit queue", __FILE__, __LINE__ };
         }
-        VkResult queue::present( VkPresentInfoKHR& present_info )
+        VkResult
+        queue::present( VkPresentInfoKHR& present_info )
         {
             return vkQueuePresentKHR( queue_handle_, &present_info );
         }
 
-        queue& queue::operator=( queue&& queue ) noexcept
+        queue&
+        queue::operator=( queue&& queue ) noexcept
         {
             if( this != &queue )
             {

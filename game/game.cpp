@@ -39,11 +39,15 @@ game::run( )
 
         float fps = ( 1.0f / dt );
 
-        //std::cout << fps << "\n";
+        std::cout << fps << "\n";
+
+        renderer_.prepare_frame();
 
         handle_input();
         update( dt );
         render( );
+
+        renderer_.submit_frame();
     }
 }
 
@@ -62,6 +66,5 @@ game::update( float delta_time )
 void
 game::render( )
 {
-    renderer_.prepare_frame( );
-    renderer_.submit_frame( );
+
 }

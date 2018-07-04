@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <set>
+#include <thread>
 
 #include "renderer.h"
 
@@ -179,11 +180,13 @@ renderer::submit_frame( )
     current_frame_ = ( current_frame_ + 1 ) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void renderer::create_vertex_buffer( const std::vector<vk::graphics::vertex>& vertices )
+void
+renderer::create_vertex_buffer( const std::vector<vk::graphics::vertex>& vertices )
 {
     vertex_buffer_ = vk::core::vertex_buffer( &logical_device_, gpu_, command_pool_, graphics_queue_, vertices );
 }
-void renderer::create_index_buffer( const std::vector<std::uint16_t>& indices )
+void
+renderer::create_index_buffer( const std::vector<std::uint16_t>& indices )
 {
     index_buffer_ = vk::core::index_buffer( &logical_device_, gpu_, command_pool_, graphics_queue_, indices );
 }

@@ -45,7 +45,8 @@ namespace vk
             return p_logical_device_->free_command_buffers( command_pool_handle_, command_buffer_handles, count );
         }
 
-        command_pool& command_pool::operator=( command_pool&& command_pool ) noexcept
+        command_pool&
+        command_pool::operator=( command_pool&& command_pool ) noexcept
         {
             if( this != &command_pool )
             {

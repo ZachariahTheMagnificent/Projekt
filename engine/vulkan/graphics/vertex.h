@@ -19,7 +19,8 @@ namespace vk
             glm::vec3 position;
             glm::vec3 colour;
 
-            static VkVertexInputBindingDescription get_binding_description()
+            static VkVertexInputBindingDescription
+            get_binding_description()
             {
                 VkVertexInputBindingDescription binding_description = {};
                 binding_description.binding = 0;
@@ -30,7 +31,8 @@ namespace vk
                 return binding_description;
             }
 
-            static std::array<VkVertexInputAttributeDescription, 2> get_attribute_descriptions()
+            static std::array<VkVertexInputAttributeDescription, 2>
+            get_attribute_descriptions()
             {
                 std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions = {};
 

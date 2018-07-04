@@ -26,6 +26,8 @@ private:
     void update( float delta_time );
     void render();
 
+    void calculate_fps( float delta_time, uint32_t interval );
+
 private:
     window& window_;
 
@@ -33,6 +35,8 @@ private:
     vk::core::shader_module fragment_shader_;
 
     renderer renderer_;
+
+    uint32_t frame_count_ = 0;
 
     const std::vector<vk::graphics::vertex> vertices = {
             { { -0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },

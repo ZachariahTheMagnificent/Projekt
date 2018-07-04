@@ -96,24 +96,28 @@ namespace vk
         {
             vkCmdBindVertexBuffers( command_buffer_handles_[index], first_binding, binding_count, p_buffers, p_offset );
         }
-        void command_buffers::bind_index_buffer( VkBuffer& buffer, VkDeviceSize offset, VkIndexType index_type,
+        void
+        command_buffers::bind_index_buffer( VkBuffer& buffer, VkDeviceSize offset, VkIndexType index_type,
                                                  uint32_t index )
         {
             vkCmdBindIndexBuffer( command_buffer_handles_[index], buffer, offset, index_type );
         }
 
-        void command_buffers::draw_indexed( uint32_t index_count, uint32_t instance_count, uint32_t first_index,
+        void
+        command_buffers::draw_indexed( uint32_t index_count, uint32_t instance_count, uint32_t first_index,
                                             int32_t vertex_offset, uint32_t first_instance, uint32_t index )
         {
             vkCmdDrawIndexed( command_buffer_handles_[index], index_count, instance_count, first_index, vertex_offset, first_instance );
         }
 
-        void command_buffers::set_viewport( uint32_t first_viewport, uint32_t viewport_count, VkViewport* p_viewports, uint32_t index )
+        void
+        command_buffers::set_viewport( uint32_t first_viewport, uint32_t viewport_count, VkViewport* p_viewports, uint32_t index )
         {
             vkCmdSetViewport( command_buffer_handles_[index], first_viewport, viewport_count, p_viewports );
         }
 
-        void command_buffers::copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, uint32_t region_count,
+        void
+        command_buffers::copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, uint32_t region_count,
                                            const VkBufferCopy* p_regions, uint32_t index )
         {
             vkCmdCopyBuffer( command_buffer_handles_[index], src_buffer, dst_buffer, region_count, p_regions );

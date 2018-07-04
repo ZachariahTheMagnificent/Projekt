@@ -33,7 +33,8 @@ namespace vk
                 shader_module_handle_ = p_logical_device_->destroy_shader_module( shader_module_handle_ );
         }
 
-        VkPipelineShaderStageCreateInfo shader_module::create_shader_stage_info( VkShaderStageFlagBits stage_flag )
+        VkPipelineShaderStageCreateInfo
+        shader_module::create_shader_stage_info( VkShaderStageFlagBits stage_flag )
         {
             VkPipelineShaderStageCreateInfo create_info = {};
             create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -44,7 +45,8 @@ namespace vk
             return create_info;
         }
 
-        shader_module& shader_module::operator=( shader_module&& shader_module ) noexcept
+        shader_module&
+        shader_module::operator=( shader_module&& shader_module ) noexcept
         {
             if( this != &shader_module )
             {

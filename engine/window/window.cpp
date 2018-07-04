@@ -109,7 +109,8 @@ window::set_up( )
     //set_window_resize_callback( glfw_callbacks::window_size_callback );
 }
 
-VkSurfaceKHR window::create_surface( const VkInstance &instance_handle ) const
+VkSurfaceKHR
+window::create_surface( const VkInstance &instance_handle ) const
 {
     VkSurfaceKHR surface;
 
@@ -119,12 +120,14 @@ VkSurfaceKHR window::create_surface( const VkInstance &instance_handle ) const
     return surface;
 }
 
-void window::set_window_resize_callback( GLFWwindowsizefun window_resize_callback )
+void
+window::set_window_resize_callback( GLFWwindowsizefun window_resize_callback )
 {
     glfwSetWindowSizeCallback( p_window_, window_resize_callback );
 }
 
-void window::set_window_position_callback( GLFWwindowposfun window_position_callback )
+void
+window::set_window_position_callback( GLFWwindowposfun window_position_callback )
 {
     glfwSetWindowPosCallback( p_window_, window_position_callback );
 }

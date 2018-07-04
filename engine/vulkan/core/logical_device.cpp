@@ -42,7 +42,7 @@ namespace vk
             create_info.enabledExtensionCount = static_cast<uint32_t>( device_extensions.size() );
             create_info.ppEnabledExtensionNames = device_extensions.data();
 
-            if( enable_validation_layers )
+            if ( enable_validation_layers )
             {
                 create_info.enabledLayerCount = static_cast<uint32_t>( validation_layers.size() );
                 create_info.ppEnabledLayerNames = validation_layers.data();
@@ -68,7 +68,8 @@ namespace vk
             }
         }
 
-        void logical_device::wait_idle( )
+        void
+        logical_device::wait_idle( )
         {
             vkDeviceWaitIdle( device_handle_ );
         }
@@ -502,19 +503,22 @@ namespace vk
             return VK_NULL_HANDLE;
         }
 
-        void logical_device::bind_buffer_memory( VkBuffer& buffer_handle, VkDeviceMemory& memory_handle,
+        void
+        logical_device::bind_buffer_memory( VkBuffer& buffer_handle, VkDeviceMemory& memory_handle,
                                                  VkDeviceSize& offset ) const
         {
             vkBindBufferMemory( device_handle_, buffer_handle, memory_handle, offset );
         }
 
-        void logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size,
+        void
+        logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size,
                                          VkMemoryMapFlags& flags, void** pp_data ) const
         {
             vkMapMemory( device_handle_, memory_handle, offset, size, flags, pp_data );
         }
 
-        void logical_device::unmap_memory( VkDeviceMemory& memory_handle ) const
+        void
+        logical_device::unmap_memory( VkDeviceMemory& memory_handle ) const
         {
             vkUnmapMemory( device_handle_, memory_handle );
         }

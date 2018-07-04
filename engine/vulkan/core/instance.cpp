@@ -102,12 +102,14 @@ namespace vk
             return VK_NULL_HANDLE;
         }
 
-        VkSurfaceKHR instance::create_surface( const window& window ) const
+        VkSurfaceKHR
+        instance::create_surface( const window& window ) const
         {
             return window.create_surface( instance_handle_ );
         }
 
-        VkSurfaceKHR instance::destroy_surface( VkSurfaceKHR& surface_handle ) const
+        VkSurfaceKHR
+        instance::destroy_surface( VkSurfaceKHR& surface_handle ) const
         {
             vkDestroySurfaceKHR( instance_handle_, surface_handle, nullptr );
 
