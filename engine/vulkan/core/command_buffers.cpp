@@ -122,5 +122,12 @@ namespace vk
         {
             vkCmdCopyBuffer( command_buffer_handles_[index], src_buffer, dst_buffer, region_count, p_regions );
         }
+
+        void
+        command_buffers::set_scissor( uint32_t first_scissor, uint32_t scissor_count, VkRect2D* p_scissors,
+                                           uint32_t index )
+        {
+            vkCmdSetScissor( command_buffer_handles_[index], first_scissor, scissor_count, p_scissors );
+        }
     }
 }

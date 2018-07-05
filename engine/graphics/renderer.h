@@ -83,8 +83,6 @@ private:
     vk::core::vertex_buffer         vertex_buffer_;
     vk::core::index_buffer          index_buffer_;
 
-    VkViewport viewport_ = {};
-
     size_t current_frame_ = 0;
     uint32_t image_index_ = 0;
 

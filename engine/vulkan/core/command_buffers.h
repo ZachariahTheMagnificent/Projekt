@@ -31,6 +31,7 @@ namespace vk
             void copy_buffer( VkBuffer& src_buffer, VkBuffer& dst_buffer, uint32_t region_count, const VkBufferCopy* p_regions, uint32_t index );
 
             void set_viewport( uint32_t first_viewport, uint32_t viewport_count, VkViewport* p_viewports, uint32_t index );
+            void set_scissor( uint32_t first_scissor, uint32_t scissor_count, VkRect2D* p_scissors, uint32_t index );
 
             void bind_pipeline( VkPipelineBindPoint pipeline_bind_point, VkPipeline& pipeline_handle, uint32_t index );
             void bind_vertex_buffers( uint32_t first_binding, uint32_t binding_count, VkBuffer* p_buffers, VkDeviceSize* p_offset, uint32_t index );

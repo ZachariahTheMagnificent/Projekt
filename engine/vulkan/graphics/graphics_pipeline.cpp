@@ -95,12 +95,13 @@ namespace vk
 
             VkDynamicState dynamic_state[] =
             {
-                VK_DYNAMIC_STATE_VIEWPORT
+                VK_DYNAMIC_STATE_VIEWPORT,
+                VK_DYNAMIC_STATE_SCISSOR
             };
 
             VkPipelineDynamicStateCreateInfo dynamic_state_info = {};
             dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-            dynamic_state_info.dynamicStateCount = 1;
+            dynamic_state_info.dynamicStateCount = 2;
             dynamic_state_info.pDynamicStates = dynamic_state;
 
             VkPipelineLayoutCreateInfo pipeline_layout_info = {};

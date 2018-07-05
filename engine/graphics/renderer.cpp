@@ -79,7 +79,9 @@ renderer::recreate_swapchain( )
 void
 renderer::record_commands( )
 {
-    viewport_ = { 0, 0, static_cast<uint32_t>( window_.get_width() ), static_cast<uint32_t>( window_.get_height() ), 0, 0 };
+    VkViewport viewport = { 0, 0, static_cast<uint32_t>( window_.get_width() ), static_cast<uint32_t>( window_.get_height() ), 0, 0 };
+    VkRect2D scissor = { { 0, 0 }, swapchain_.get_extent() };
+
 
     for( auto i = 0; i < command_buffers_.get_count(); ++i )
     {
@@ -100,7 +102,8 @@ renderer::record_commands( )
             command_buffers_.begin_render_pass( render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE, i );
 
             {
-                command_buffers_.set_viewport( 0, 1, &viewport_, i );
+                command_buffers_.set_viewport( 0, 1, &viewport, i );
+                command_buffers_.set_scissor( 0, 1, &scissor, i );
 
                 command_buffers_.bind_pipeline( VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_.get(), i );
 
@@ -186,24 +189,26 @@ renderer::submit_frame( event& e )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
-        if( e.event_type == event::type::window_resized )
+        if ( e.event_type == event::type::window_resized )
         {
-            logical_device_.wait_idle();
+            logical_device_.wait_idle( );
 
-            swapchain_.destroy();
+            swapchain_.destroy( );
 
             surface_ = vk::graphics::surface( &instance_, window_ );
 
             gpu_.check_surface_present_support( surface_ );
 
-            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
-            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
-            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
+            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width( ), window_.get_height( ), swapchain_.get( ) );
+            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
+            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
-            record_commands();
+            record_commands( );
         }
         else
         {
+            std::cerr << "graphics pipeline recreated." << std::endl;
+
             recreate_swapchain( );
         }
     }
