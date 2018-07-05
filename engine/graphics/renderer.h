@@ -32,8 +32,8 @@ public:
     renderer( const window& window );
     ~renderer();
 
-    void prepare_frame( event& e );
-    void submit_frame( event& e );
+    void prepare_frame( std::vector<event>& events );
+    void submit_frame( std::vector<event>& events );
 
     void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
                                 const std::vector<std::uint16_t>& indices );
@@ -44,6 +44,8 @@ private:
 
     void create_vertex_buffer( const std::vector<vk::graphics::vertex>& vertices );
     void create_index_buffer( const std::vector<std::uint16_t>& indices );
+
+    void handle_window_resizing();
 
 private:
     const std::vector<const char*> validation_layers = {

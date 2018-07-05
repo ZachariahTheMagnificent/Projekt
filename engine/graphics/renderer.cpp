@@ -123,7 +123,7 @@ renderer::record_commands( )
 }
 
 void
-renderer::prepare_frame( event& e )
+renderer::prepare_frame( std::vector<event>& events )
 {
     fences_.wait_for_fence( current_frame_, VK_TRUE, std::numeric_limits<uint64_t>::max() );
     fences_.reset_fence( current_frame_ );
@@ -133,21 +133,27 @@ renderer::prepare_frame( event& e )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR )
     {
-        if( e.event_type == event::type::window_resized )
+        bool is_resized = false;
+
+        if( !events.empty() )
         {
-            logical_device_.wait_idle();
+            for( auto& e : events )
+            {
+                if( e.event_type == event::type::window_resized )
+                {
+                    is_resized = true;
+                }
+            }
+        }
 
-            swapchain_.destroy();
-
-            surface_ = vk::graphics::surface( &instance_, window_ );
-            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
-            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
-            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
-
-            record_commands();
+        if ( is_resized )
+        {
+            handle_window_resizing();
         }
         else
         {
+            std::cerr << "graphics pipeline recreated." << std::endl;
+
             recreate_swapchain( );
         }
     }
@@ -158,7 +164,7 @@ renderer::prepare_frame( event& e )
 }
 
 void
-renderer::submit_frame( event& e )
+renderer::submit_frame( std::vector<event>& events )
 {
     VkSemaphore wait_semaphores[] = { image_available_semaphores_[current_frame_] };
     VkSemaphore signal_semaphores[] = { render_finished_semaphores_[current_frame_] };
@@ -189,21 +195,19 @@ renderer::submit_frame( event& e )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
-        if ( e.event_type == event::type::window_resized )
+        bool is_resized = false;
+
+        for( auto& e : events )
         {
-            logical_device_.wait_idle( );
+            if( e.event_type == event::type::window_resized )
+            {
+                is_resized = true;
+            }
+        }
 
-            swapchain_.destroy( );
-
-            surface_ = vk::graphics::surface( &instance_, window_ );
-
-            gpu_.check_surface_present_support( surface_ );
-
-            swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width( ), window_.get_height( ), swapchain_.get( ) );
-            frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
-            command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
-
-            record_commands( );
+        if ( is_resized )
+        {
+            handle_window_resizing();
         }
         else
         {
@@ -229,4 +233,21 @@ void
 renderer::create_index_buffer( const std::vector<std::uint16_t>& indices )
 {
     index_buffer_ = vk::core::index_buffer( &logical_device_, gpu_, command_pool_, graphics_queue_, indices );
+}
+
+void renderer::handle_window_resizing( )
+{
+    logical_device_.wait_idle( );
+
+    swapchain_.destroy( );
+
+    surface_ = vk::graphics::surface( &instance_, window_ );
+
+    gpu_.check_surface_present_support( surface_ );
+
+    swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width( ), window_.get_height( ), swapchain_.get( ) );
+    frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
+    command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
+
+    record_commands( );
 }

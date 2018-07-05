@@ -37,18 +37,22 @@ game::run( )
 
         float fps = ( 1.0f / dt );
 
-        event e;
-        while( window_.poll_event( e ) )
+        auto events = event_handler::pull();
+
+        if( !events.empty() )
         {
-            handle_input( e );
+            for( auto& e : events )
+            {
+                window_.poll_event( e );
+            }
         }
 
-        renderer_.prepare_frame( e );
+        renderer_.prepare_frame( events );
 
         update( dt );
         render( );
 
-        renderer_.submit_frame( e );
+        renderer_.submit_frame( events );
     }
 }
 
