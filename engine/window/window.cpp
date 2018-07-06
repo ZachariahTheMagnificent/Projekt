@@ -59,6 +59,11 @@ window::handle_event( event& e )
         width_ = e.window_resize.width;
         height_ = e.window_resize.height;
     }
+    else if( e.event_type == event::type::window_moved )
+    {
+        x_pos_ = e.window_move.x;
+        x_pos_ = e.window_move.y;
+    }
 }
 
 bool
@@ -118,7 +123,9 @@ window::set_up( )
 
     glfwSetWindowPos( p_window_, x_pos_, y_pos_ );
 
+    set_window_position_callback( glfw_callbacks::window_pos_callback );
     set_window_resize_callback( glfw_callbacks::window_size_callback );
+    set_frame_buffer_resize_callback( glfw_callbacks::frame_buffer_size_callback );
 }
 
 VkSurfaceKHR
@@ -142,4 +149,9 @@ void
 window::set_window_position_callback( GLFWwindowposfun window_position_callback )
 {
     glfwSetWindowPosCallback( p_window_, window_position_callback );
+}
+
+void window::set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback )
+{
+    glfwSetFramebufferSizeCallback( p_window_, framebuffer_size_callback );
 }

@@ -79,9 +79,8 @@ renderer::recreate_swapchain( )
 void
 renderer::record_commands( )
 {
-    VkViewport viewport = { 0, 0, static_cast<uint32_t>( window_.get_width() ), static_cast<uint32_t>( window_.get_height() ), 0, 0 };
+    VkViewport viewport = { 0, 0, swapchain_.get_extent().width, swapchain_.get_extent().height , 0, 0 };
     VkRect2D scissor = { { 0, 0 }, swapchain_.get_extent() };
-
 
     for( auto i = 0; i < command_buffers_.get_count(); ++i )
     {
@@ -123,7 +122,7 @@ renderer::record_commands( )
 }
 
 void
-renderer::prepare_frame( std::vector<event>& events )
+renderer::prepare_frame( )
 {
     fences_.wait_for_fence( current_frame_, VK_TRUE, std::numeric_limits<uint64_t>::max() );
     fences_.reset_fence( current_frame_ );
@@ -133,29 +132,9 @@ renderer::prepare_frame( std::vector<event>& events )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR )
     {
-        bool is_resized = false;
+        std::cerr << "graphics pipeline recreated." << std::endl;
 
-        if( !events.empty() )
-        {
-            for( auto& e : events )
-            {
-                if( e.event_type == event::type::window_resized )
-                {
-                    is_resized = true;
-                }
-            }
-        }
-
-        if ( is_resized )
-        {
-            handle_window_resizing();
-        }
-        else
-        {
-            std::cerr << "graphics pipeline recreated." << std::endl;
-
-            recreate_swapchain( );
-        }
+        recreate_swapchain( );
     }
     else if( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
     {
@@ -164,7 +143,7 @@ renderer::prepare_frame( std::vector<event>& events )
 }
 
 void
-renderer::submit_frame( std::vector<event>& events )
+renderer::submit_frame( )
 {
     VkSemaphore wait_semaphores[] = { image_available_semaphores_[current_frame_] };
     VkSemaphore signal_semaphores[] = { render_finished_semaphores_[current_frame_] };
@@ -193,17 +172,9 @@ renderer::submit_frame( std::vector<event>& events )
 
     auto result = present_queue_.present( present_info );
 
-    for( auto& e : events )
-    {
-        if( e.event_type == event::type::window_resized )
-        {
-            handle_window_resizing();
-        }
-    }
-
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
-        std::cerr << "graphics pipeline recreated." << std::endl;
+        std::cerr << "recreate swapchain." << std::endl;
 
         recreate_swapchain( );
     }
@@ -226,6 +197,18 @@ renderer::create_index_buffer( const std::vector<std::uint16_t>& indices )
     index_buffer_ = vk::core::index_buffer( &logical_device_, gpu_, command_pool_, graphics_queue_, indices );
 }
 
+void renderer::handle_event( event& e )
+{
+    if( e.event_type == event::type::window_resized )
+    {
+        handle_window_resizing();
+    }
+    else if( e.event_type == event::type::frame_buffer_resized )
+    {
+        handle_frame_buffer_resizing( e );
+    }
+}
+
 void renderer::handle_window_resizing( )
 {
     logical_device_.wait_idle( );
@@ -237,6 +220,23 @@ void renderer::handle_window_resizing( )
     gpu_.check_surface_present_support( surface_ );
 
     swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width( ), window_.get_height( ), swapchain_.get( ) );
+    frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
+    command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
+
+    record_commands( );
+}
+
+void renderer::handle_frame_buffer_resizing( event& e )
+{
+    logical_device_.wait_idle( );
+
+    swapchain_.destroy( );
+
+    surface_ = vk::graphics::surface( &instance_, window_ );
+
+    gpu_.check_surface_present_support( surface_ );
+
+    swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, e.frame_buffer_resize.width, e.frame_buffer_resize.height, swapchain_.get( ) );
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 

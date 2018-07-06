@@ -11,11 +11,17 @@ struct event
 {
     struct window_move_event
     {
-        std::int32_t x;
-        std::int32_t y;
+        std::uint32_t x;
+        std::uint32_t y;
     };
 
     struct window_resize_event
+    {
+        std::uint32_t width;
+        std::uint32_t height;
+    };
+
+    struct frame_buffer_resize_event
     {
         std::uint32_t width;
         std::uint32_t height;
@@ -28,6 +34,8 @@ struct event
         window_moved,
         window_resized,
 
+        frame_buffer_resized,
+
         count
     };
 
@@ -35,6 +43,8 @@ struct event
     {
         window_move_event window_move;
         window_resize_event window_resize;
+
+        frame_buffer_resize_event frame_buffer_resize;
     };
 
     type event_type = type::null;

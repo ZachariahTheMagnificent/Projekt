@@ -51,6 +51,7 @@ private:
 private:
     void set_window_resize_callback( GLFWwindowsizefun window_resize_callback );
     void set_window_position_callback( GLFWwindowposfun window_position_callback );
+    void set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback );
 
 private:
     std::uint32_t x_pos_    = 50;

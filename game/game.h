@@ -36,6 +36,9 @@ private:
 
     uint32_t frame_count_ = 0;
 
+    float time_passed = 0;
+    int frames_passed = 0;
+
     const std::vector<vk::graphics::vertex> vertices = {
             { { -0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
             { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },

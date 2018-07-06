@@ -32,11 +32,13 @@ public:
     renderer( const window& window );
     ~renderer();
 
-    void prepare_frame( std::vector<event>& events );
-    void submit_frame( std::vector<event>& events );
+    void prepare_frame( );
+    void submit_frame( );
 
     void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
                                 const std::vector<std::uint16_t>& indices );
+
+    void handle_event( event& e );
 
 private:
     void recreate_swapchain( );
@@ -46,6 +48,7 @@ private:
     void create_index_buffer( const std::vector<std::uint16_t>& indices );
 
     void handle_window_resizing();
+    void handle_frame_buffer_resizing( event& e );
 
 private:
     const std::vector<const char*> validation_layers = {

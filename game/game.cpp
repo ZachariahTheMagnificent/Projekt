@@ -37,24 +37,34 @@ game::run( )
         }
         dt = std::min( dt, max_dt );
 
-        float fps = ( 1.0f / dt );
+        time_passed += dt;
+        frames_passed += 1;
+
+        if( time_passed >= 1 )
+        {
+            std::cout << ( frames_passed / time_passed ) << "\n";
+
+            time_passed = 0;
+            frames_passed = 0;
+        }
 
         auto events = event_handler::pull();
-
         if( !events.empty() )
         {
             for( auto& e : events )
             {
                 window_.handle_event( e );
+
+                renderer_.handle_event( e );
             }
         }
 
-        renderer_.prepare_frame( events );
+        renderer_.prepare_frame( );
 
         update( dt );
         render( );
 
-        renderer_.submit_frame( events );
+        renderer_.submit_frame( );
     }
 }
 

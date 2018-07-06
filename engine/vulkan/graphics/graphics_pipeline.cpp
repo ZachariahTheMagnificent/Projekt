@@ -96,7 +96,7 @@ namespace vk
             VkDynamicState dynamic_state[] =
             {
                 VK_DYNAMIC_STATE_VIEWPORT,
-                VK_DYNAMIC_STATE_SCISSOR
+                VK_DYNAMIC_STATE_SCISSOR,
             };
 
             VkPipelineDynamicStateCreateInfo dynamic_state_info = {};
