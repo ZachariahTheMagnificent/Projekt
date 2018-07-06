@@ -47,10 +47,13 @@ window::~window( )
 }
 
 void
-window::poll_event( event& e )
+window::poll_event( )
 {
-    glfwPollEvents( );
-
+    glfwPollEvents();
+}
+void
+window::handle_event( event& e )
+{
     if ( e.event_type == event::type::window_resized )
     {
         width_ = e.window_resize.width;

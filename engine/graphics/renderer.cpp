@@ -193,28 +193,19 @@ renderer::submit_frame( std::vector<event>& events )
 
     auto result = present_queue_.present( present_info );
 
-    if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
+    for( auto& e : events )
     {
-        bool is_resized = false;
-
-        for( auto& e : events )
-        {
-            if( e.event_type == event::type::window_resized )
-            {
-                is_resized = true;
-            }
-        }
-
-        if ( is_resized )
+        if( e.event_type == event::type::window_resized )
         {
             handle_window_resizing();
         }
-        else
-        {
-            std::cerr << "graphics pipeline recreated." << std::endl;
+    }
 
-            recreate_swapchain( );
-        }
+    if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
+    {
+        std::cerr << "graphics pipeline recreated." << std::endl;
+
+        recreate_swapchain( );
     }
     else if( result != VK_SUCCESS )
     {

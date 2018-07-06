@@ -27,6 +27,8 @@ game::run( )
 
     while( window_.is_open( ) )
     {
+        window_.poll_event();
+
         float dt;
         {
             const auto new_time_point = std::chrono::steady_clock::now( );
@@ -43,7 +45,7 @@ game::run( )
         {
             for( auto& e : events )
             {
-                window_.poll_event( e );
+                window_.handle_event( e );
             }
         }
 

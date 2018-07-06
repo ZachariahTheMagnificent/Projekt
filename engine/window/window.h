@@ -32,7 +32,8 @@ public:
     window& operator=( const window& ) = delete;
     window& operator=( window&& ) = delete;
 
-    void poll_event( event& e );
+    void poll_event();
+    void handle_event( event& e );
 
     bool is_open() const;
 
