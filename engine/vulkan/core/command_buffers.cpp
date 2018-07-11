@@ -86,6 +86,18 @@ namespace vk
         }
 
         void
+        command_buffers::bind_descriptor_sets( VkPipelineBindPoint pipeline_bind_point,
+                                               VkPipelineLayout& pipeline_layout, uint32_t first_set,
+                                               uint32_t descriptor_set_count,
+                                               const VkDescriptorSet* p_descriptor_sets,
+                                               uint32_t dynamic_offset_count, const uint32_t* p_dynamic_offsets,
+                                               uint32_t index )
+        {
+            vkCmdBindDescriptorSets( command_buffer_handles_[index], pipeline_bind_point, pipeline_layout,
+                                     first_set, descriptor_set_count, p_descriptor_sets,
+                                     dynamic_offset_count, p_dynamic_offsets );
+        }
+        void
         command_buffers::bind_pipeline( VkPipelineBindPoint pipeline_bind_point, VkPipeline& pipeline_handle, uint32_t index )
         {
             vkCmdBindPipeline( command_buffer_handles_[index], pipeline_bind_point, pipeline_handle );

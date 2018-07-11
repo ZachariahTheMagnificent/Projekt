@@ -25,6 +25,9 @@
 #include "../vulkan/core/semaphores.h"
 #include "../vulkan/core/vertex_buffer.h"
 #include "../vulkan/core/index_buffer.h"
+#include "../vulkan/graphics/uniform_buffers.h"
+#include "../vulkan/core/descriptor_pool.h"
+#include "../vulkan/core/descriptor_sets.h"
 
 class renderer
 {
@@ -34,6 +37,8 @@ public:
 
     void prepare_frame( );
     void submit_frame( );
+
+    void update( float dt );
 
     void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
                                 const std::vector<std::uint16_t>& indices );
@@ -74,6 +79,10 @@ private:
     vk::core::semaphores            render_finished_semaphores_;
     vk::core::fences                fences_;
 
+    vk::core::descriptor_pool       descriptor_pool_;
+    vk::core::descriptor_set_layout descriptor_set_layout_;
+    vk::core::descriptor_sets       descriptor_sets_;
+
     vk::graphics::swapchain         swapchain_;
     vk::core::render_pass           render_pass_;
     vk::graphics::graphics_pipeline graphics_pipeline_;
@@ -87,16 +96,12 @@ private:
 
     vk::core::vertex_buffer         vertex_buffer_;
     vk::core::index_buffer          index_buffer_;
+    vk::graphics::uniform_buffers   uniform_buffers_;
 
     size_t current_frame_ = 0;
     uint32_t image_index_ = 0;
 
-    struct UniformBufferObject
-    {
-        glm::mat4 model;
-        glm::mat4 view;
-        glm::mat4 proj;
-    };
+    glm::mat4 projection_matrix_;
 };
 
 #endif //PROJEKT_RENDERER_H

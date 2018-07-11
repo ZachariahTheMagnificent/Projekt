@@ -6,6 +6,7 @@
 #include <iostream>
 #include <set>
 #include <thread>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "renderer.h"
 
@@ -13,6 +14,7 @@
 
 #include "../utils/exception/vulkan_exception.h"
 #include "../utils/file_io/read.h"
+#include "../vulkan/graphics/uniform_buffer_object.h"
 
 constexpr const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -39,12 +41,17 @@ renderer::renderer( const window &window )
     swapchain_                  = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
     render_pass_                = vk::core::render_pass( &logical_device_, swapchain_ );
 
+    descriptor_pool_            = vk::core::descriptor_pool( &logical_device_, swapchain_.get_count() );
+    descriptor_set_layout_      = vk::core::descriptor_set_layout( &logical_device_, VK_SHADER_STAGE_VERTEX_BIT );
+
     vertex_shader_              = vk::core::shader_module( &logical_device_, "../game/shaders/vert.spv" );
     fragment_shader_            = vk::core::shader_module( &logical_device_, "../game/shaders/frag.spv" );
-    graphics_pipeline_          = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, vertex_shader_, fragment_shader_ );
+    graphics_pipeline_          = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, descriptor_set_layout_, vertex_shader_, fragment_shader_ );
 
     frame_buffers_              = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_            = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
+
+    projection_matrix_          = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
 }
 
 renderer::~renderer()
@@ -57,6 +64,10 @@ void renderer::prepare_for_rendering( const std::vector<vk::graphics::vertex>& v
     create_vertex_buffer( vertices );
     create_index_buffer( indices );
 
+    uniform_buffers_ = vk::graphics::uniform_buffers( &logical_device_, gpu_, swapchain_.get_count() );
+    descriptor_sets_ = vk::core::descriptor_sets( logical_device_, &descriptor_pool_, descriptor_set_layout_, uniform_buffers_.get(),
+                                                  sizeof( vk::graphics::uniform_buffer_object ), swapchain_.get_count() );
+
     record_commands( );
 }
 
@@ -68,10 +79,12 @@ renderer::recreate_swapchain( )
     swapchain_ = vk::graphics::swapchain( &logical_device_, gpu_, surface_, window_.get_width(), window_.get_height(), swapchain_.get() );
     render_pass_ = vk::core::render_pass( &logical_device_, swapchain_ );
 
-    graphics_pipeline_ = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, vertex_shader_, fragment_shader_ );
+    graphics_pipeline_ = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, descriptor_set_layout_, vertex_shader_, fragment_shader_ );
 
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
+
+    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
 
     record_commands( );
 }
@@ -111,6 +124,7 @@ renderer::record_commands( )
                 command_buffers_.bind_vertex_buffers( 0, 1, &vertex_buffer_.get(), offsets, i );
                 command_buffers_.bind_index_buffer( index_buffer_.get(), 0, VK_INDEX_TYPE_UINT16, i );
 
+                command_buffers_.bind_descriptor_sets( VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_.get_layout(), 0, 1, &descriptor_sets_[i], 0, nullptr, i );
                 command_buffers_.draw_indexed( index_buffer_.get_count(), 1, 0, 0, 0, i );
             }
 
@@ -223,6 +237,8 @@ void renderer::handle_window_resizing( )
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
+    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
+
     record_commands( );
 }
 
@@ -240,5 +256,12 @@ void renderer::handle_frame_buffer_resizing( event& e )
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
+    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
+
     record_commands( );
+}
+
+void renderer::update( float dt )
+{
+    uniform_buffers_.update( dt, projection_matrix_, image_index_ );
 }

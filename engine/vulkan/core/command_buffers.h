@@ -33,6 +33,10 @@ namespace vk
             void set_viewport( uint32_t first_viewport, uint32_t viewport_count, VkViewport* p_viewports, uint32_t index );
             void set_scissor( uint32_t first_scissor, uint32_t scissor_count, VkRect2D* p_scissors, uint32_t index );
 
+
+            void bind_descriptor_sets( VkPipelineBindPoint pipeline_bind_point, VkPipelineLayout& pipeline_layout,
+                                       uint32_t first_set, uint32_t descriptor_set_count, const VkDescriptorSet* p_descriptor_sets,
+                                       uint32_t dynamic_offset_count, const uint32_t* p_dynamic_offsets, uint32_t index );
             void bind_pipeline( VkPipelineBindPoint pipeline_bind_point, VkPipeline& pipeline_handle, uint32_t index );
             void bind_vertex_buffers( uint32_t first_binding, uint32_t binding_count, VkBuffer* p_buffers, VkDeviceSize* p_offset, uint32_t index );
             void bind_index_buffer( VkBuffer& buffer, VkDeviceSize offset, VkIndexType index_type, uint32_t index );

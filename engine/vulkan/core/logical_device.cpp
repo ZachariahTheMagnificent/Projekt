@@ -512,15 +512,77 @@ namespace vk
 
         void
         logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size,
-                                         VkMemoryMapFlags& flags, void** pp_data ) const
+                                    VkMemoryMapFlags& flags, void** pp_data ) const
         {
             vkMapMemory( device_handle_, memory_handle, offset, size, flags, pp_data );
         }
-
         void
         logical_device::unmap_memory( VkDeviceMemory& memory_handle ) const
         {
             vkUnmapMemory( device_handle_, memory_handle );
+        }
+
+        VkDescriptorSetLayout
+        logical_device::create_descriptor_set_layout( VkDescriptorSetLayoutCreateInfo& create_info ) const
+        {
+            VkDescriptorSetLayout layout_handle;
+
+            if( vkCreateDescriptorSetLayout( device_handle_, &create_info, nullptr, &layout_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Descriptor Set Layout." << std::endl;
+            else
+                std::cout << "Descriptor Set Layout created successfully." << std::endl;
+
+            return layout_handle;
+        }
+        VkDescriptorSetLayout
+        logical_device::destroy_descriptor_set_layout( VkDescriptorSetLayout& descriptor_set_layout_handle ) const
+        {
+            vkDestroyDescriptorSetLayout( device_handle_, descriptor_set_layout_handle, nullptr );
+
+            return VK_NULL_HANDLE;
+        }
+
+        VkDescriptorSet*
+        logical_device::allocate_descriptor_sets_( VkDescriptorSetAllocateInfo& allocate_info, uint32_t count ) const
+        {
+            auto* descriptor_set = new VkDescriptorSet[count];
+
+            if( vkAllocateDescriptorSets( device_handle_, &allocate_info, descriptor_set ) != VK_NULL_HANDLE )
+                std::cerr << "Failed to allocate Descriptor Sets" << std::endl;
+
+            return descriptor_set;
+        }
+        VkDescriptorSet*
+        logical_device::free_descriptor_sets_( const VkDescriptorPool& descriptor_pool_handle, VkDescriptorSet* descriptor_set_handles, uint32_t count ) const
+        {
+            vkFreeDescriptorSets( device_handle_, descriptor_pool_handle, count, descriptor_set_handles );
+
+            return VK_NULL_HANDLE;
+        }
+
+        void
+        logical_device::update_descriptor_set( uint32_t descriptor_write_count, const VkWriteDescriptorSet* p_descriptor_writes,
+                                               uint32_t descriptor_copy_count, const VkCopyDescriptorSet* p_descriptor_copies ) const
+        {
+            vkUpdateDescriptorSets( device_handle_, descriptor_write_count, p_descriptor_writes, descriptor_copy_count, p_descriptor_copies );
+        }
+
+        VkDescriptorPool
+        logical_device::create_descriptor_pool( VkDescriptorPoolCreateInfo& create_info ) const
+        {
+            VkDescriptorPool pool_handle;
+
+            if( vkCreateDescriptorPool( device_handle_, &create_info, nullptr, &pool_handle ) != VK_SUCCESS )
+                std::cerr << "Failed to create Descriptor Pool." << std::endl;
+
+            return pool_handle;
+        }
+        VkDescriptorPool
+        logical_device::destroy_descriptor_pool( VkDescriptorPool& descriptor_pool_handle ) const
+        {
+            vkDestroyDescriptorPool( device_handle_, descriptor_pool_handle, nullptr );
+
+            return VK_NULL_HANDLE;
         }
     }
 }

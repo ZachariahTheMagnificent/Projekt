@@ -92,6 +92,18 @@ namespace vk
             void map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size, VkMemoryMapFlags& flags, void **pp_data ) const;
             void unmap_memory( VkDeviceMemory& memory_handle ) const;
 
+            VkDescriptorSetLayout create_descriptor_set_layout( VkDescriptorSetLayoutCreateInfo& create_info ) const;
+            VkDescriptorSetLayout destroy_descriptor_set_layout( VkDescriptorSetLayout& descriptor_set_layout_handle ) const;
+
+            VkDescriptorSet* allocate_descriptor_sets_( VkDescriptorSetAllocateInfo& allocate_info, uint32_t count ) const;
+            VkDescriptorSet* free_descriptor_sets_( const VkDescriptorPool& descriptor_pool_handle, VkDescriptorSet* descriptor_set_handles, uint32_t count ) const;
+
+            void update_descriptor_set( uint32_t descriptor_write_count, const VkWriteDescriptorSet* p_descriptor_writes,
+                                        uint32_t descriptor_copy_count, const VkCopyDescriptorSet* p_descriptor_copies ) const;
+
+            VkDescriptorPool create_descriptor_pool( VkDescriptorPoolCreateInfo& create_info ) const;
+            VkDescriptorPool destroy_descriptor_pool( VkDescriptorPool& descriptor_pool_handle ) const;
+
         private:
             VkDevice device_handle_ = VK_NULL_HANDLE;
         };

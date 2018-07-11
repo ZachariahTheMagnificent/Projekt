@@ -12,6 +12,7 @@ namespace vk
         graphics_pipeline::graphics_pipeline( const core::logical_device* p_logical_device,
                                               const core::render_pass& render_pass,
                                               const swapchain& swapchain,
+                                              const core::descriptor_set_layout& descriptor_set_layout,
                                               core::shader_module& vertex_shader,
                                               core::shader_module& fragment_shader )
             :
@@ -63,7 +64,7 @@ namespace vk
             rasterization_state_info.polygonMode = VK_POLYGON_MODE_FILL;
             rasterization_state_info.lineWidth = 1.0f;
             rasterization_state_info.cullMode = VK_CULL_MODE_BACK_BIT;
-            rasterization_state_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+            rasterization_state_info.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
             rasterization_state_info.depthBiasEnable = VK_FALSE;
 
             VkPipelineMultisampleStateCreateInfo multisample_state_info = {};
@@ -106,8 +107,8 @@ namespace vk
 
             VkPipelineLayoutCreateInfo pipeline_layout_info = {};
             pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipeline_layout_info.setLayoutCount = 0;
-            pipeline_layout_info.pSetLayouts = nullptr;
+            pipeline_layout_info.setLayoutCount = 1;
+            pipeline_layout_info.pSetLayouts = &descriptor_set_layout.get();
             pipeline_layout_info.pushConstantRangeCount = 0;
             pipeline_layout_info.pPushConstantRanges = nullptr;
 
