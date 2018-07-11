@@ -57,10 +57,10 @@ namespace vk
         uniform_buffers::update( float dt, glm::mat4& proj_matrix, uint32_t index )
         {
             uniform_buffer_object ubo = {};
-            ubo.model = glm::rotate( glm::mat4( 1.0f ), dt * glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-            ubo.view = glm::lookAt(glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-            ubo.proj = proj_matrix;
-            ubo.proj[1][1] *= -1;
+            ubo.model           = glm::rotate( glm::mat4( 1.0f ), dt * glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+            ubo.view            = glm::lookAt(glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+            ubo.proj            = proj_matrix;
+            ubo.proj[1][1]      *= -1;
 
             VkDeviceSize offset = 0;
             VkDeviceSize size = sizeof( ubo );
@@ -68,7 +68,9 @@ namespace vk
 
             void* data;
             p_logical_device_->map_memory( memory_handles_[index], offset, size, flags, &data );
+            {
                 memcpy( data, &ubo, sizeof( ubo ) );
+            }
             p_logical_device_->unmap_memory( memory_handles_[index] );
 
         }

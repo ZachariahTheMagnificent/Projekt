@@ -77,7 +77,7 @@ game::handle_input( event& e )
 void
 game::update( float delta_time )
 {
-
+    renderer_.update( delta_time );
 }
 
 void

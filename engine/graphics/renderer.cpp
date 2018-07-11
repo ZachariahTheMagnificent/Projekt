@@ -51,7 +51,7 @@ renderer::renderer( const window &window )
     frame_buffers_              = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_            = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
 
-    projection_matrix_          = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
+    projection_matrix_          = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float ) swapchain_.get_extent().height, 0.1f, 10.0f );
 }
 
 renderer::~renderer()
