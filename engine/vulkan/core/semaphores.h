@@ -27,7 +27,7 @@ namespace vk
             semaphores& operator=( const semaphores& semaphores ) = delete;
             semaphores& operator=( semaphores&& semaphores ) noexcept;
 
-            const VkSemaphore& operator[]( size_t i );
+            VkSemaphore& operator[]( size_t i );
 
         private:
             const logical_device* p_logical_device_ = nullptr;

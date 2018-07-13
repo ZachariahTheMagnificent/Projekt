@@ -55,6 +55,8 @@ namespace vk
                 return extent_;
             }
 
+            VkResult acquire_next_image( uint64_t timeout, VkSemaphore& semaphore_handle, VkFence fence_handle, uint32_t* p_image_index );
+
             swapchain& operator=( const swapchain& swapchain ) = delete;
             swapchain& operator=( swapchain&& swapchain ) noexcept;
 

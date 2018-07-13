@@ -20,7 +20,7 @@ namespace vk
             uniform_buffers( uniform_buffers&& uniform_buffers ) noexcept;
             ~uniform_buffers( );
 
-            void update( float dt, glm::mat4& proj_matrix, uint32_t image_index );
+            void update( glm::mat4& model_matrix, glm::mat4& view_matrix, glm::mat4& proj_matrix, uint32_t index );
 
             const VkBuffer* get()
             {

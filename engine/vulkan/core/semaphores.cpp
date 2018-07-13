@@ -50,8 +50,8 @@ namespace vk
             return *this;
         }
 
-        const
-        VkSemaphore& semaphores::operator[]( size_t i )
+        VkSemaphore&
+        semaphores::operator[]( size_t i )
         {
             return semaphore_handles_[i];
         }

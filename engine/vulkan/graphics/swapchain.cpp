@@ -115,6 +115,13 @@ namespace vk
                 swapchain_handle_ = p_logical_device_->destroy_swapchain( swapchain_handle_ );
         }
 
+        VkResult
+        swapchain::acquire_next_image( uint64_t timeout, VkSemaphore& semaphore_handle, VkFence fence_handle,
+                                       uint32_t* p_image_index )
+        {
+            return p_logical_device_->acquire_next_image( swapchain_handle_, timeout, semaphore_handle, fence_handle, p_image_index );
+        }
+
         swapchain&
         swapchain::operator=( swapchain&& swapchain ) noexcept
         {
@@ -188,11 +195,16 @@ namespace vk
         {
             for( const auto& available_present_mode : available_present_modes )
             {
+
                 if( available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR )
                     return VK_PRESENT_MODE_MAILBOX_KHR;
+                else if( available_present_mode == VK_PRESENT_MODE_FIFO_KHR )
+                    return VK_PRESENT_MODE_FIFO_KHR;
+                else if( available_present_mode == VK_PRESENT_MODE_FIFO_RELAXED_KHR )
+                    return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
 
-            return VK_PRESENT_MODE_FIFO_KHR;
+            return VK_PRESENT_MODE_IMMEDIATE_KHR;
         }
     }
 }

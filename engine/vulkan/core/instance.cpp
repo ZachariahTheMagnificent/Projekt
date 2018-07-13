@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "instance.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -14,7 +15,7 @@ namespace vk
         instance::instance( const std::string &name, const std::vector<const char*>& validation_layers, std::vector<const char*> extensions )
         {
             if( enable_validation_layers && !check_validation_layer_support( validation_layers ) )
-                std::cerr << "Validation layers requested, but not available" << std::endl;
+                throw vulkan_exception{ "Validation Layers requested, but not available.", __FILE__, __LINE__ };
 
             if( enable_validation_layers )
                 extensions.push_back( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
@@ -44,9 +45,7 @@ namespace vk
             }
 
             if( vkCreateInstance( &create_info, nullptr, &instance_handle_ ) != VK_SUCCESS )
-                std::cerr << "Failed to create instance." << std::endl;
-            else
-                std::cout << "instance created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Instance.", __FILE__, __LINE__ };
         }
 
         instance::instance( instance &&instance ) noexcept
@@ -59,8 +58,6 @@ namespace vk
             if( instance_handle_ != VK_NULL_HANDLE )
             {
                 vkDestroyInstance( instance_handle_, nullptr );
-
-                std::cout << "instance destroyed." << std::endl;
             }
         }
 
@@ -85,9 +82,7 @@ namespace vk
             VkDebugReportCallbackEXT debug_report;
 
             if( vk_create_debug_report_callback_EXT( instance_handle_, &create_info, nullptr, &debug_report ) != VK_SUCCESS )
-                std::cerr << "Failed to create debug report callback." << std::endl;
-            else
-                std::cout << "Debug report callback created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to creat Debug Report Callback.", __FILE__, __LINE__ };
 
             return debug_report;
         }
@@ -96,8 +91,6 @@ namespace vk
         instance::destroy_debug_report( VkDebugReportCallbackEXT& debug_report_handle )
         {
             vk_destroy_debug_report_callback_EXT( instance_handle_, debug_report_handle, nullptr );
-
-            std::cout << "Debug report callback destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -113,8 +106,6 @@ namespace vk
         {
             vkDestroySurfaceKHR( instance_handle_, surface_handle, nullptr );
 
-            std::cout << "surface destroyed." << std::endl;
-
             return VK_NULL_HANDLE;
         }
 
@@ -125,7 +116,7 @@ namespace vk
             vkEnumeratePhysicalDevices( instance_handle_, &device_count, nullptr );
 
             if( device_count == 0 )
-                std::cerr << "Failed to find any physical devices with vulkan support" << std::endl;
+                throw vulkan_exception{ "Failed to find any physical devices with vulkan support.", __FILE__, __LINE__ };
 
             std::vector<VkPhysicalDevice> available_devices( device_count );
             vkEnumeratePhysicalDevices( instance_handle_, &device_count, available_devices.data() );

@@ -40,8 +40,8 @@ public:
 
     void update( float dt );
 
-    void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices,
-                                const std::vector<std::uint16_t>& indices );
+    void prepare_pipeline( std::string&& vertex_shader, std::string&& fragment_shader );
+    void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices, const std::vector<std::uint16_t>& indices );
 
     void handle_event( event& e );
 

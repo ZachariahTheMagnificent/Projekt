@@ -151,7 +151,8 @@ window::set_window_position_callback( GLFWwindowposfun window_position_callback 
     glfwSetWindowPosCallback( p_window_, window_position_callback );
 }
 
-void window::set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback )
+void
+window::set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback )
 {
     glfwSetFramebufferSizeCallback( p_window_, framebuffer_size_callback );
 }

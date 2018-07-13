@@ -11,6 +11,7 @@
 #include "uniform_buffers.h"
 
 #include "uniform_buffer_object.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -54,11 +55,11 @@ namespace vk
         }
 
         void
-        uniform_buffers::update( float dt, glm::mat4& proj_matrix, uint32_t index )
+        uniform_buffers::update( glm::mat4& model_matrix, glm::mat4& view_matrix, glm::mat4& proj_matrix, uint32_t index )
         {
             uniform_buffer_object ubo = {};
-            ubo.model           = glm::rotate( glm::mat4( 1.0f ), dt * glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-            ubo.view            = glm::lookAt(glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+            ubo.model           = model_matrix;
+            ubo.view            = view_matrix;
             ubo.proj            = proj_matrix;
             ubo.proj[1][1]      *= -1;
 
@@ -145,7 +146,7 @@ namespace vk
                 }
             }
 
-            std::cerr << "Failed to find a suitable memory type." << std::endl;
+            throw vulkan_exception{ "Failed to find a suitable memory type.", __FILE__, __LINE__ };
         }
     }
 }

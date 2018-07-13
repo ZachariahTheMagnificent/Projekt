@@ -43,7 +43,13 @@ public:
 
     const std::uint32_t get_width() const;
     const std::uint32_t get_height() const;
+
     const std::string& get_title() const;
+
+    void set_title( const std::string& title ) const
+    {
+        glfwSetWindowTitle( p_window_, title.c_str() );
+    }
 
 private:
     void set_up();

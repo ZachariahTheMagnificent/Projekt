@@ -8,6 +8,7 @@
 
 #include "physical_device.h"
 #include "../graphics/surface.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -129,9 +130,7 @@ namespace vk
             VkDevice device_handle;
 
             if( vkCreateDevice( physical_device_handle_, &create_info, nullptr, &device_handle ) != VK_NULL_HANDLE )
-                std::cerr << "Failed to create logical device" << std::endl;
-            else
-                std::cout << "Logical device created succesfully." << std::endl;
+                throw vulkan_exception{ "Failed to create logical Device.", __FILE__, __LINE__ };
 
             return device_handle;
         }

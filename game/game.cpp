@@ -12,11 +12,8 @@ game::game( window& window )
     window_( window ),
     renderer_( window_ )
 {
+    renderer_.prepare_pipeline( "../game/shaders/vert.spv" , "../game/shaders/frag.spv" );
     renderer_.prepare_for_rendering( vertices, indices_ );
-}
-game::~game( )
-{
-
 }
 
 void
@@ -40,9 +37,9 @@ game::run( )
         time_passed += dt;
         frames_passed += 1;
 
-        if( time_passed >= 1 )
+        if( time_passed >= 0.1 )
         {
-            std::cout << ( frames_passed / time_passed ) << "\n";
+            window_.set_title( window_.get_title() + " : FPS - " + std::to_string( ( frames_passed / time_passed ) ) );
 
             time_passed = 0;
             frames_passed = 0;
@@ -54,8 +51,9 @@ game::run( )
             for( auto& e : events )
             {
                 window_.handle_event( e );
-
                 renderer_.handle_event( e );
+
+                handle_input( e );
             }
         }
 

@@ -14,7 +14,7 @@ public:
     explicit game( window& window );
     game( const game& ) = delete;
     game( game&& ) = delete;
-    ~game( );
+    ~game( ) = default;
 
     game& operator=( const game& ) = delete;
     game& operator=( game&& ) = delete;

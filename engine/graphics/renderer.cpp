@@ -44,9 +44,6 @@ renderer::renderer( const window &window )
     descriptor_pool_            = vk::core::descriptor_pool( &logical_device_, swapchain_.get_count() );
     descriptor_set_layout_      = vk::core::descriptor_set_layout( &logical_device_, VK_SHADER_STAGE_VERTEX_BIT );
 
-    vertex_shader_              = vk::core::shader_module( &logical_device_, "../game/shaders/vert.spv" );
-    fragment_shader_            = vk::core::shader_module( &logical_device_, "../game/shaders/frag.spv" );
-    graphics_pipeline_          = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, descriptor_set_layout_, vertex_shader_, fragment_shader_ );
 
     frame_buffers_              = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_            = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
@@ -56,10 +53,18 @@ renderer::renderer( const window &window )
 
 renderer::~renderer()
 {
-    graphics_queue_.wait_idle();
+    graphics_queue_.wait_idle( );
 }
 
-void renderer::prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices, const std::vector<std::uint16_t>& indices )
+void
+renderer::prepare_pipeline( std::string&& vertex_shader, std::string&& fragment_shader )
+{
+    vertex_shader_              = vk::core::shader_module( &logical_device_, vertex_shader );
+    fragment_shader_            = vk::core::shader_module( &logical_device_, fragment_shader );
+    graphics_pipeline_          = vk::graphics::graphics_pipeline( &logical_device_, render_pass_, swapchain_, descriptor_set_layout_, vertex_shader_, fragment_shader_ );
+}
+void
+renderer::prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices, const std::vector<std::uint16_t>& indices )
 {
     create_vertex_buffer( vertices );
     create_index_buffer( indices );
@@ -141,13 +146,10 @@ renderer::prepare_frame( )
     fences_.wait_for_fence( current_frame_, VK_TRUE, std::numeric_limits<uint64_t>::max() );
     fences_.reset_fence( current_frame_ );
 
-    auto result = vkAcquireNextImageKHR( logical_device_.get(), swapchain_.get(), std::numeric_limits<uint64_t>::max(),
-                                         image_available_semaphores_[current_frame_], VK_NULL_HANDLE, &image_index_ );
+    auto result = swapchain_.acquire_next_image( std::numeric_limits<uint64_t>::max(), image_available_semaphores_[current_frame_], VK_NULL_HANDLE, &image_index_ );
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR )
     {
-        std::cerr << "graphics pipeline recreated." << std::endl;
-
         recreate_swapchain( );
     }
     else if( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
@@ -188,8 +190,6 @@ renderer::submit_frame( )
 
     if( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR )
     {
-        std::cerr << "recreate swapchain." << std::endl;
-
         recreate_swapchain( );
     }
     else if( result != VK_SUCCESS )
@@ -256,12 +256,16 @@ void renderer::handle_frame_buffer_resizing( event& e )
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
-    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
+    projection_matrix_ = glm::perspective( glm::radians( 70.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
 
     record_commands( );
 }
 
 void renderer::update( float dt )
 {
-    uniform_buffers_.update( dt, projection_matrix_, image_index_ );
+    auto model_matrix = glm::mat4( 1.0f );
+    //auto model_matrix = glm::rotate( glm::mat4( 1.0f ), glm::radians( 90 ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+    auto view_matrix = glm::lookAt( glm::vec3( 0.0f, 0.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+    uniform_buffers_.update( model_matrix, view_matrix, projection_matrix_, image_index_ );
 }

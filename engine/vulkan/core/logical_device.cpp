@@ -8,6 +8,7 @@
 
 #include "logical_device.h"
 #include "instance.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -61,11 +62,7 @@ namespace vk
         logical_device::~logical_device( )
         {
             if( device_handle_ != VK_NULL_HANDLE )
-            {
                 vkDestroyDevice( device_handle_, nullptr );
-
-                std::cout << "Logical device destroyed." << std::endl;
-            }
         }
 
         void
@@ -99,8 +96,6 @@ namespace vk
 
             vkGetDeviceQueue( device_handle_, family_index, queue_index, &queue_handle );
 
-            std::cout << "queue acquired." << std::endl;
-
             return queue_handle;
         }
 
@@ -109,10 +104,8 @@ namespace vk
         {
             VkCommandPool command_pool_handle;
 
-            if( vkCreateCommandPool( device_handle_, &create_info, nullptr, &command_pool_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Command Pool." << std::endl;
-            else
-                std::cout << "Command Pool created successfully." << std::endl;
+            if( vkCreateCommandPool( device_handle_, &create_info, nullptr, &command_pool_handle ) != VK_SUCCESS )\
+                throw vulkan_exception{ "Failed to create Command Pool.", __FILE__, __LINE__ };
 
             return command_pool_handle;
         }
@@ -120,8 +113,6 @@ namespace vk
         logical_device::destroy_command_pool( VkCommandPool& command_pool ) const
         {
             vkDestroyCommandPool( device_handle_, command_pool, nullptr );
-
-            std::cout << "Command Pool destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -132,9 +123,7 @@ namespace vk
             auto* command_buffer_handles = new VkCommandBuffer[count];
 
             if( vkAllocateCommandBuffers( device_handle_, &allocate_info, command_buffer_handles ) != VK_SUCCESS )
-                std::cerr << "Failed to allocate Command Buffers." << std::endl;
-            else
-                std::cout << "Command Buffers allocated successfully." << std::endl;
+                throw vulkan_exception{ "Failed to allocate Command Buffers.", __FILE__, __LINE__ };
 
             return command_buffer_handles;
         }
@@ -145,9 +134,7 @@ namespace vk
         {
             vkFreeCommandBuffers( device_handle_, command_pool_handle, count, command_buffer_handles );
 
-            std::cout << "Command Buffers freed." << std::endl;
-
-            return nullptr;
+            return VK_NULL_HANDLE;
         }
 
         VkSemaphore*
@@ -158,9 +145,7 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 if( vkCreateSemaphore( device_handle_, &create_info, nullptr, &semaphore_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create semaphore." << std::endl;
-                else
-                    std::cout << "Semaphore created successfully." << std::endl;
+                    throw vulkan_exception{ "failed to create Semaphore.", __FILE__, __LINE__ };
             }
 
             return semaphore_handles;
@@ -171,8 +156,6 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 vkDestroySemaphore( device_handle_, semaphore_handles[i], nullptr );
-
-                std::cout << "Semaphore destroyed." << std::endl;
             }
 
             return nullptr;
@@ -186,9 +169,7 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 if( vkCreateFence( device_handle_, &create_info, nullptr, &fence_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create fence." << std::endl;
-                else
-                    std::cout << "Fence create successfully." << std::endl;
+                    throw vulkan_exception{ "Failed to create fence.", __FILE__, __LINE__ };
             }
 
             return fence_handles;
@@ -199,8 +180,6 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 vkDestroyFence( device_handle_, fence_handle[i], nullptr );
-
-                std::cout << "Fence destroyed." << std::endl;
             }
 
             return nullptr;
@@ -223,9 +202,7 @@ namespace vk
             VkSwapchainKHR swapchain_handle;
 
             if( vkCreateSwapchainKHR( device_handle_, &create_info, nullptr, &swapchain_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create swapchain." << std::endl;
-            else
-                std::cout << "swapchain created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Swapchain.", __FILE__, __LINE__ };
 
             return swapchain_handle;
         }
@@ -264,9 +241,7 @@ namespace vk
                 create_info.image = image_handles[i];
 
                 if( vkCreateImageView( device_handle_, &create_info, nullptr, &image_view_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create Image View." << std::endl;
-                else
-                    std::cout << "Image View created successfully." << std::endl;
+                    throw vulkan_exception{ "Failed to create Image View.", __FILE__, __LINE__ };
             }
 
             return image_view_handles;
@@ -277,13 +252,19 @@ namespace vk
             for( auto i = 0; i < count; ++i )
             {
                 vkDestroyImageView( device_handle_, image_view_handles[i], nullptr );
-
-                std::cout << "Image View destroyed." << std::endl;
             }
 
             delete[] image_view_handles;
 
             return nullptr;
+        }
+
+        VkResult
+        logical_device::acquire_next_image( VkSwapchainKHR& swapchain_handle, uint64_t timeout,
+                                            VkSemaphore& semaphore_handle, VkFence fence_handle,
+                                            uint32_t* p_image_index ) const
+        {
+            return vkAcquireNextImageKHR( device_handle_, swapchain_handle, timeout, semaphore_handle, fence_handle, p_image_index );
         }
 
         VkRenderPass
@@ -292,9 +273,7 @@ namespace vk
             VkRenderPass render_pass_handle;
 
             if( vkCreateRenderPass( device_handle_, &create_info, nullptr, &render_pass_handle ) != VK_NULL_HANDLE )
-                std::cerr << "Failed to create Render Pass." << std::endl;
-            else
-                std::cout << "Render Pass created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Render Pass.", __FILE__, __LINE__ };
 
             return render_pass_handle;
         }
@@ -302,8 +281,6 @@ namespace vk
         logical_device::destroy_render_pass( VkRenderPass& render_pass_handle ) const
         {
             vkDestroyRenderPass( device_handle_, render_pass_handle, nullptr );
-
-            std::cout << "Render Pass destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -325,9 +302,7 @@ namespace vk
                 create_info.pAttachments = attachments;
 
                 if( vkCreateFramebuffer( device_handle_, &create_info, nullptr, &frame_buffer_handles[i] ) != VK_SUCCESS )
-                    std::cerr << "Failed to create Frame Buffer." << std::endl;
-                else
-                    std::cout << "Frame Buffer created successfully." << std::endl;
+                    throw vulkan_exception{ "Failed to create Frame Buffer.", __FILE__, __LINE__ };
             }
 
             return frame_buffer_handles;
@@ -340,8 +315,6 @@ namespace vk
                 vkDestroyFramebuffer( device_handle_, frame_buffer_handles[i], nullptr );
 
                 frame_buffer_handles[i] = VK_NULL_HANDLE;
-
-                std::cout << "Frame Buffer destroyed." << std::endl;
             }
 
             delete[] frame_buffer_handles;
@@ -355,9 +328,7 @@ namespace vk
             VkShaderModule shader_module_handle;
 
             if( vkCreateShaderModule( device_handle_, &create_info, nullptr, &shader_module_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Shader Module." << std::endl;
-            else
-                std::cout << "Shader Module created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Shader Module.", __FILE__, __LINE__ };
 
             return shader_module_handle;
         }
@@ -365,8 +336,6 @@ namespace vk
         logical_device::destroy_shader_module( VkShaderModule& shader_module_handle ) const
         {
             vkDestroyShaderModule( device_handle_, shader_module_handle, nullptr );
-
-            std::cout << "Shader Module destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -377,9 +346,7 @@ namespace vk
             VkPipelineLayout pipeline_layout_handle;
 
             if( vkCreatePipelineLayout( device_handle_, &create_info, nullptr, &pipeline_layout_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Pipeline Layout." << std::endl;
-            else
-                std::cout << "Pipeline Layout create successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Pipeline Layout.", __FILE__, __LINE__ };
 
             return pipeline_layout_handle;
         }
@@ -387,8 +354,6 @@ namespace vk
         logical_device::destroy_pipeline_layout( VkPipelineLayout& pipeline_layout_handle ) const
         {
             vkDestroyPipelineLayout( device_handle_, pipeline_layout_handle, nullptr );
-
-            std::cout << "Pipeline Layout destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -399,9 +364,7 @@ namespace vk
             VkPipelineCache pipeline_cache_handle;
 
             if( vkCreatePipelineCache( device_handle_, &create_info, nullptr, &pipeline_cache_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Pipeline Cache." << std::endl;
-            else
-                std::cout << "Pipeline Cache created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Pipeline Cache.", __FILE__, __LINE__ };
 
             return pipeline_cache_handle;
         }
@@ -409,8 +372,6 @@ namespace vk
         logical_device::destroy_pipeline_cache( VkPipelineCache& pipeline_cache_handle ) const
         {
             vkDestroyPipelineCache( device_handle_, pipeline_cache_handle, nullptr );
-
-            std::cout << "Pipeline Cache destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -421,9 +382,7 @@ namespace vk
             VkPipeline pipeline_handle;
 
             if( vkCreateComputePipelines( device_handle_, pipeline_cache_handle, 1, &create_info, nullptr, &pipeline_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Compute Pipeline." << std::endl;
-            else
-                std::cout << "Compute Pipeline created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Pipeline.", __FILE__, __LINE__ };
 
             return pipeline_handle;
         }
@@ -433,9 +392,7 @@ namespace vk
             VkPipeline pipeline_handle;
 
             if( vkCreateGraphicsPipelines( device_handle_, pipeline_cache_handle, 1, &create_info, nullptr, &pipeline_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Graphics Pipeline." << std::endl;
-            else
-                std::cout << "Graphics Pipeline created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Graphics Pipeline.", __FILE__, __LINE__ };
 
             return pipeline_handle;
         }
@@ -443,8 +400,6 @@ namespace vk
         logical_device::destroy_pipeline( VkPipeline& pipeline_handle ) const
         {
             vkDestroyPipeline( device_handle_, pipeline_handle, nullptr );
-
-            std::cout << "Pipeline destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -455,9 +410,7 @@ namespace vk
             VkBuffer buffer_handle;
 
             if( vkCreateBuffer( device_handle_, &create_info, nullptr, &buffer_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Buffer." << std::endl;
-            else
-                std::cout << "Buffer created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Buffer.", __FILE__, __LINE__ };
 
             return buffer_handle;
         }
@@ -465,8 +418,6 @@ namespace vk
         logical_device::destroy_buffer( VkBuffer& buffer_handle ) const
         {
             vkDestroyBuffer( device_handle_, buffer_handle, nullptr );
-
-            std::cout << "Buffer destroyed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -487,9 +438,7 @@ namespace vk
             VkDeviceMemory memory_handle;
 
             if( vkAllocateMemory( device_handle_, &allocate_info, nullptr, &memory_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to allocate memory." << std::endl;
-            else
-                std::cout << "Memory allocated successfully." << std::endl;
+                throw vulkan_exception{ "Failed to allocate Memory.", __FILE__, __LINE__ };
 
             return memory_handle;
         }
@@ -497,8 +446,6 @@ namespace vk
         logical_device::free_memory( VkDeviceMemory& memory_handle ) const
         {
             vkFreeMemory( device_handle_, memory_handle, nullptr );
-
-            std::cout << "Memory freed." << std::endl;
 
             return VK_NULL_HANDLE;
         }
@@ -528,9 +475,7 @@ namespace vk
             VkDescriptorSetLayout layout_handle;
 
             if( vkCreateDescriptorSetLayout( device_handle_, &create_info, nullptr, &layout_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Descriptor Set Layout." << std::endl;
-            else
-                std::cout << "Descriptor Set Layout created successfully." << std::endl;
+                throw vulkan_exception{ "Failed to create Descriptor Set Layout.", __FILE__, __LINE__ };
 
             return layout_handle;
         }
@@ -548,7 +493,7 @@ namespace vk
             auto* descriptor_set = new VkDescriptorSet[count];
 
             if( vkAllocateDescriptorSets( device_handle_, &allocate_info, descriptor_set ) != VK_NULL_HANDLE )
-                std::cerr << "Failed to allocate Descriptor Sets" << std::endl;
+                throw vulkan_exception{ "Failed to allocate Descriptor Sets.", __FILE__, __LINE__ };
 
             return descriptor_set;
         }
@@ -573,7 +518,7 @@ namespace vk
             VkDescriptorPool pool_handle;
 
             if( vkCreateDescriptorPool( device_handle_, &create_info, nullptr, &pool_handle ) != VK_SUCCESS )
-                std::cerr << "Failed to create Descriptor Pool." << std::endl;
+                throw vulkan_exception{ "Failed to create Descriptor Pool.", __FILE__, __LINE__ };
 
             return pool_handle;
         }

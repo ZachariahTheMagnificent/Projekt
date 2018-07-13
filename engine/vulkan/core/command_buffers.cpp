@@ -3,6 +3,7 @@
  */
 
 #include "command_buffers.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -64,13 +65,13 @@ namespace vk
             command_buffer_begin_info.flags = flags;
 
             if( vkBeginCommandBuffer( command_buffer_handles_[index], &command_buffer_begin_info ) != VK_SUCCESS )
-                std::cerr << "Failed to begin recording command buffer." << std::endl;
+                throw vulkan_exception{ "Failed to begin recording Command Buffer.", __FILE__, __LINE__ };
         }
         void
         command_buffers::end( uint32_t index )
         {
             if( vkEndCommandBuffer( command_buffer_handles_[index] ) != VK_SUCCESS )
-                std::cerr << "Failed to end recording command buffer." << std::endl;
+                throw vulkan_exception{ "Failde to end recording Command Buffer.", __FILE__, __LINE__ };
         }
 
         void

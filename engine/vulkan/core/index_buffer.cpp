@@ -5,6 +5,7 @@
 #include <cstring>
 #include "index_buffer.h"
 #include "command_buffers.h"
+#include "../../utils/exception/vulkan_exception.h"
 
 namespace vk
 {
@@ -126,7 +127,7 @@ namespace vk
                 }
             }
 
-            std::cerr << "Failed to find a suitable memory type." << std::endl;
+            throw vulkan_exception{ "Failed to find a suitable memory type.", __FILE__, __LINE__ };
         }
 
         index_buffer&
