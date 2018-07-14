@@ -102,6 +102,7 @@ private:
     uint32_t image_index_ = 0;
 
     glm::mat4 projection_matrix_;
+    float test = 0;
 };
 
 #endif //PROJEKT_RENDERER_H
