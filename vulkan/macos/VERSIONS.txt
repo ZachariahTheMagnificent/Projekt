@@ -1,0 +1,9 @@
+Revisions used to build this SDK on Wed Jun 20 17:37:00 UTC 2018
+10bce5e525e638050f44c47662669f1bc7eb1559 : https://github.com/KhronosGroup/Vulkan-Loader.git
+0ec7ce985fba34d5303f84f09fab79cd2b9874a8 : https://github.com/KhronosGroup/Vulkan-ValidationLayers.git
+384fff68c802a10b5d7f4f352a4bb43b3efe5f23 : https://github.com/KhronosGroup/Vulkan-Tools.git
+c7b2304816768be12d1980c8c33fe9e9a4246ee9 : https://github.com/KhronosGroup/MoltenVK.git
+2c8265bb620300047bb9241e39c60c7afe3a81cb : https://github.com/KhronosGroup/glslang.git
+e59cc244958af6059f7bd1d16d833e17409dec37 : https://github.com/KhronosGroup/SPIRV-Cross.git
+6173d6c525e0748aac9cbc84243da363879e20e8 : https://github.com/google/shaderc.git
+9582bcb54e2cd0ea9441664fa6563e2687a9e32d : https://github.com/KhronosGroup/Vulkan-Docs.git

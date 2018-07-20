@@ -134,6 +134,10 @@ renderer::record_commands( )
 
         command_buffers_.end( i );
     }
+
+    /*
+     *
+     */
 }
 
 void
