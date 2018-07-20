@@ -28,7 +28,7 @@ namespace vk
                                            VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer,
                                            VkDeviceMemory& buffer_memory )
         {
-            {
+            /*
                 VkBufferCreateInfo create_info = {};
                 create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
                 create_info.size = size;
@@ -48,7 +48,7 @@ namespace vk
 
                 VkDeviceSize offset = 0;
                 p_logical_device_->bind_buffer_memory( buffer, buffer_memory, offset );
-            }
+            */
         }
     }
 }
