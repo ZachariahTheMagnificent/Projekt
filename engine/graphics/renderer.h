@@ -38,9 +38,9 @@ public:
     void prepare_frame( );
     void submit_frame( );
 
-    void update( float dt );
+    void update( glm::mat4& model_matrix, glm::mat4& view_matrix, glm::mat4& projection_matrix );
 
-    void prepare_pipeline( std::string&& vertex_shader, std::string&& fragment_shader );
+    void create_pipeline( std::string&& vertex_shader, std::string&& fragment_shader );
     void prepare_for_rendering( const std::vector<vk::graphics::vertex>& vertices, const std::vector<std::uint16_t>& indices );
 
     void handle_event( event& e );
@@ -85,6 +85,7 @@ private:
 
     vk::graphics::swapchain         swapchain_;
     vk::core::render_pass           render_pass_;
+
     vk::graphics::graphics_pipeline graphics_pipeline_;
 
     vk::graphics::frame_buffers     frame_buffers_;
@@ -100,9 +101,6 @@ private:
 
     size_t current_frame_ = 0;
     uint32_t image_index_ = 0;
-
-    glm::mat4 projection_matrix_;
-    float test = 0;
 };
 
 #endif //PROJEKT_RENDERER_H

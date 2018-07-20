@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "game.h"
 
 game::game( window& window )
@@ -12,7 +14,8 @@ game::game( window& window )
     window_( window ),
     renderer_( window_ )
 {
-    renderer_.prepare_pipeline( "../game/shaders/vert.spv" , "../game/shaders/frag.spv" );
+    renderer_.create_pipeline( "../game/shaders/vert.spv" , "../game/shaders/frag.spv" );
+
     renderer_.prepare_for_rendering( vertices, indices_ );
 }
 
@@ -75,7 +78,13 @@ game::handle_input( event& e )
 void
 game::update( float delta_time )
 {
-    renderer_.update( delta_time );
+    test += delta_time * 1.5f;
+
+    auto model_matrix = glm::rotate( glm::mat4( 1.0f ), test * glm::radians( 45.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+    auto view_matrix = glm::lookAt( glm::vec3( 0.0f, 0.0f, 5.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    auto projection_matrix = glm::perspective( glm::radians( 90.0f ), window_.get_width() / ( float ) window_.get_height(), 0.1f, 10.0f );
+
+    renderer_.update( model_matrix, view_matrix, projection_matrix );
 }
 
 void

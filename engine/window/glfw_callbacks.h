@@ -41,6 +41,45 @@ struct glfw_callbacks
 
         event_handler::push_event( e );
     }
+
+    static void
+    key_callback( GLFWwindow* p_window, int key, int scancode, int action, int mode )
+    {
+        event e;
+        e.key.key = static_cast<io::keyboard::key>( key );
+
+        if( action == GLFW_PRESS || action == GLFW_REPEAT )
+            e.event_type = event::type::key_pressed;
+        else if( action == GLFW_RELEASE )
+            e.event_type = event::type::key_released;
+
+        event_handler::push_event( e );
+    }
+
+    static void
+    mouse_pos_callback( GLFWwindow* p_window, double x, double y )
+    {
+        event e;
+        e.mouse_move.x = x;
+        e.mouse_move.y = y;
+        e.event_type = event::type::mouse_moved;
+
+        event_handler::push_event( e );
+    }
+
+    static void
+    mouse_button_callback( GLFWwindow* p_window, int button, int action, int mode )
+    {
+        event e;
+        e.mouse_button.button = static_cast<io::mouse::button>( button );
+
+        if( action == GLFW_PRESS || action == GLFW_REPEAT )
+            e.event_type = event::type::mouse_button_pressed;
+        else if( action == GLFW_RELEASE )
+            e.event_type = event::type::mouse_button_released;
+
+        event_handler::push_event( e );
+    }
 };
 
 #endif //PROJEKT_GLFW_CALLBACKS_H

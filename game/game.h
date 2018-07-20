@@ -47,8 +47,10 @@ private:
     };
 
     const std::vector<std::uint16_t> indices_ = {
-            0, 1, 2, 0, 2, 3,
+            0, 1, 2, 0, 2, 3
     };
+
+    float test = 0;
 };
 
 #endif //PROJEKT_GAME_H

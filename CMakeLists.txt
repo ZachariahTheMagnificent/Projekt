@@ -62,6 +62,6 @@ add_executable( Projekt main.cpp
 
         game/game.h
         game/game.cpp
-        engine/window/event/event.h engine/window/event/event_handler.h engine/vulkan/graphics/uniform_buffer_object.h engine/vulkan/core/descriptor_set_layout.h engine/vulkan/core/descriptor_set_layout.cpp engine/vulkan/graphics/uniform_buffers.h engine/vulkan/graphics/uniform_buffers.cpp engine/vulkan/core/descriptor_pool.h engine/vulkan/core/descriptor_pool.cpp engine/vulkan/core/descriptor_sets.h engine/vulkan/core/descriptor_sets.cpp)
+        engine/window/event/event.h engine/window/event/event_handler.h engine/vulkan/graphics/uniform_buffer_object.h engine/vulkan/core/descriptor_set_layout.h engine/vulkan/core/descriptor_set_layout.cpp engine/vulkan/graphics/uniform_buffers.h engine/vulkan/graphics/uniform_buffers.cpp engine/vulkan/core/descriptor_pool.h engine/vulkan/core/descriptor_pool.cpp engine/vulkan/core/descriptor_sets.h engine/vulkan/core/descriptor_sets.cpp engine/window/io/keyboard.h engine/window/io/mouse.h engine/vulkan/graphics/texture_image.h engine/vulkan/graphics/texture_image.cpp)
 
 target_link_libraries( Projekt libvulkan.so libglfw.so )

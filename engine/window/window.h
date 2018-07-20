@@ -58,6 +58,10 @@ private:
     void set_window_resize_callback( GLFWwindowsizefun window_resize_callback );
     void set_window_position_callback( GLFWwindowposfun window_position_callback );
     void set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback );
+    void set_key_callback( GLFWkeyfun key_callback );
+    void set_mouse_button_callback( GLFWmousebuttonfun mouse_button_callback );
+    void set_cursor_position_callback( GLFWcursorposfun cursor_position_callback );
+
 
 private:
     std::uint32_t x_pos_    = 50;

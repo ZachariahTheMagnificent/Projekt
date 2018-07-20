@@ -47,8 +47,6 @@ renderer::renderer( const window &window )
 
     frame_buffers_              = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_            = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
-
-    projection_matrix_          = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float ) swapchain_.get_extent().height, 0.1f, 10.0f );
 }
 
 renderer::~renderer()
@@ -57,7 +55,7 @@ renderer::~renderer()
 }
 
 void
-renderer::prepare_pipeline( std::string&& vertex_shader, std::string&& fragment_shader )
+renderer::create_pipeline( std::string&& vertex_shader, std::string&& fragment_shader )
 {
     vertex_shader_              = vk::core::shader_module( &logical_device_, vertex_shader );
     fragment_shader_            = vk::core::shader_module( &logical_device_, fragment_shader );
@@ -88,8 +86,6 @@ renderer::recreate_swapchain( )
 
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count() );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count() );
-
-    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
 
     record_commands( );
 }
@@ -237,8 +233,6 @@ void renderer::handle_window_resizing( )
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
-    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
-
     record_commands( );
 }
 
@@ -256,18 +250,10 @@ void renderer::handle_frame_buffer_resizing( event& e )
     frame_buffers_ = vk::graphics::frame_buffers( &logical_device_, render_pass_, swapchain_, swapchain_.get_count( ) );
     command_buffers_ = vk::core::command_buffers( &command_pool_, frame_buffers_.get_count( ) );
 
-    projection_matrix_ = glm::perspective( glm::radians( 45.0f ), swapchain_.get_extent().width / ( float )  swapchain_.get_extent().height, 0.1f, 10.0f );
-
     record_commands( );
 }
 
-void renderer::update( float dt )
+void renderer::update( glm::mat4& model_matrix, glm::mat4& view_matrix, glm::mat4& projection_matrix )
 {
-    test += dt;
-
-    //auto model_matrix = glm::mat4( 1.0f );
-    auto model_matrix = glm::rotate( glm::mat4( 1.0f ), test * glm::radians( 45.0f ), glm::vec3( 1.0f, 1.0f, 1.0f ) );
-    auto view_matrix = glm::lookAt( glm::vec3( 0.0f, 0.0f, 5.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-
-    uniform_buffers_.update( model_matrix, view_matrix, projection_matrix_, image_index_ );
+    uniform_buffers_.update( model_matrix, view_matrix, projection_matrix, image_index_ );
 }

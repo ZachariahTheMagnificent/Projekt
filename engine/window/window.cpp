@@ -126,6 +126,9 @@ window::set_up( )
     set_window_position_callback( glfw_callbacks::window_pos_callback );
     set_window_resize_callback( glfw_callbacks::window_size_callback );
     set_frame_buffer_resize_callback( glfw_callbacks::frame_buffer_size_callback );
+    set_key_callback( glfw_callbacks::key_callback );
+    set_mouse_button_callback( glfw_callbacks::mouse_button_callback );
+    set_cursor_position_callback( glfw_callbacks::mouse_pos_callback );
 }
 
 VkSurfaceKHR
@@ -155,4 +158,19 @@ void
 window::set_frame_buffer_resize_callback( GLFWframebuffersizefun framebuffer_size_callback )
 {
     glfwSetFramebufferSizeCallback( p_window_, framebuffer_size_callback );
+}
+void
+window::set_key_callback( GLFWkeyfun key_callback )
+{
+    glfwSetKeyCallback( p_window_, key_callback );
+}
+void
+window::set_mouse_button_callback( GLFWmousebuttonfun mouse_button_callback )
+{
+    glfwSetMouseButtonCallback( p_window_, mouse_button_callback );
+}
+void
+window::set_cursor_position_callback( GLFWcursorposfun cursor_position_callback )
+{
+    glfwSetCursorPosCallback( p_window_, cursor_position_callback );
 }
