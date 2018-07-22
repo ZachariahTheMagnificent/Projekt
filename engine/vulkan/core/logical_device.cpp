@@ -458,8 +458,8 @@ namespace vk
         }
 
         void
-        logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size,
-                                    VkMemoryMapFlags& flags, void** pp_data ) const
+        logical_device::map_memory( VkDeviceMemory& memory_handle, VkDeviceSize offset, VkDeviceSize& size,
+                                    VkMemoryMapFlags flags, void** pp_data ) const
         {
             vkMapMemory( device_handle_, memory_handle, offset, size, flags, pp_data );
         }

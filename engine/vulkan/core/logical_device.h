@@ -92,7 +92,7 @@ namespace vk
 
             void bind_buffer_memory( VkBuffer& buffer_handle, VkDeviceMemory& memory_handle, VkDeviceSize& offset ) const;
 
-            void map_memory( VkDeviceMemory& memory_handle, VkDeviceSize& offset, VkDeviceSize& size, VkMemoryMapFlags& flags, void **pp_data ) const;
+            void map_memory( VkDeviceMemory& memory_handle, VkDeviceSize offset, VkDeviceSize& size, VkMemoryMapFlags flags, void **pp_data ) const;
             void unmap_memory( VkDeviceMemory& memory_handle ) const;
 
             VkDescriptorSetLayout create_descriptor_set_layout( VkDescriptorSetLayoutCreateInfo& create_info ) const;
