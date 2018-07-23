@@ -3,6 +3,9 @@
  */
 
 #include "swapchain.h"
+#undef min
+#undef max
+#include <algorithm>
 
 namespace vk
 {
@@ -164,7 +167,6 @@ namespace vk
             else
             {
                 VkExtent2D actual_extent = { width, height };
-
                 actual_extent.width = std::max( capabilities.minImageExtent.width,
                                                 std::min( capabilities.minImageExtent.width, actual_extent.width ) );
 

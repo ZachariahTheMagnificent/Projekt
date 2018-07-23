@@ -15,11 +15,7 @@ int main( )
 
     try
     {
-<<<<<<< HEAD:main.cpp
-        Window window( 100, 100, 1280, 720, "Project - Vulkan" );
-=======
-        window window( 100, 100, 1280, 720, "Projekt - vulkan" );
->>>>>>> upstream/master:game/main.cpp
+        window window( 100, 100, 1280, 720, "Project - Vulkan" );
 
         try
         {
