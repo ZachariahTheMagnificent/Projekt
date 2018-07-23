@@ -13,13 +13,6 @@ else()
     link_directories( ${PROJECT_SOURCE_DIR}/dependencies/linux/lib/glfw )
 endif()
 
-
-
-<<<<<<< HEAD
-        Game/Game.h
-        Game/Game.cpp
-        Engine/Vulkan/Instance.h Engine/Vulkan/Instance.cpp Engine/Vulkan/DebugReport.h Engine/Vulkan/DebugReport.cpp Engine/Vulkan/Surface.h Engine/Vulkan/Surface.cpp Engine/Vulkan/PhysicalDevice.h Engine/Vulkan/PhysicalDevice.cpp Engine/Vulkan/Helpers/SwapchainSupportDetails.h Engine/Vulkan/Helpers/QueueFamilyIndices.h)
-=======
 set( CMAKE_CXX_STANDARD 17 )
 
 add_executable( Projekt
@@ -93,7 +86,6 @@ add_executable( Projekt
         engine/window/window.cpp
         engine/window/window.h
         )
->>>>>>> upstream/master
 
 if( WIN32 )
     target_link_libraries( Projekt libvulkan.so libglfw.so )
