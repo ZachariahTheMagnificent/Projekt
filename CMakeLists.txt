@@ -1,22 +1,23 @@
-cmake_minimum_required( VERSION 3.11 )
-project( projekt )
-
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Do not build documents")
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Do not build tests")
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Do not build example programs")
-set(GLFW_INSTALL OFF CACHE INTERNAL "Do not generate installation target")
-
-add_subdirectory(glfw) # Build the GLFW project.
-add_subdirectory(glm)
-add_subdirectory(vulkan)
+cmake_minimum_required( VERSION 3.9 )
+project( Projekt )
 
 if( WIN32 )
     include_directories( ${PROJECT_SOURCE_DIR}/dependencies/win32/Include )
+
+    link_directories( ${PROJECT_SOURCE_DIR}/dependencies/win32/Lib/vulkan )
+    link_directories( ${PROJECT_SOURCE_DIR}/dependencies/win32/Lib/glfw )
 else()
     include_directories( ${PROJECT_SOURCE_DIR}/dependencies/linux/include )
+
+    link_directories( ${PROJECT_SOURCE_DIR}/dependencies/linux/lib/vulkan )
+    link_directories( ${PROJECT_SOURCE_DIR}/dependencies/linux/lib/glfw )
 endif()
 
-add_executable( projekt
+
+
+set( CMAKE_CXX_STANDARD 17 )
+
+add_executable( Projekt
 
         game/game.cpp
         game/game.h
@@ -86,7 +87,10 @@ add_executable( projekt
         engine/window/glfw_callbacks.h
         engine/window/window.cpp
         engine/window/window.h
-)
+        )
 
-target_compile_features(projekt PUBLIC cxx_std_17) # This executable uses C++17.
-target_link_libraries(projekt vulkan glm glfw)
+if( WIN32 )
+    target_link_libraries( Projekt libvulkan.so libglfw.so )
+else()
+    target_link_libraries( Projekt libvulkan.so libglfw.so )
+endif()
